@@ -2,21 +2,13 @@ import os
 from pydoc import text
 from inference_sdk import InferenceHTTPClient
 from dotenv import load_dotenv
+from filemngmt import delete_tmp_file, download_file_from_bucket
 
 load_dotenv()
 
-client = InferenceHTTPClient(
+inference_http_client = InferenceHTTPClient(
     api_url=os.getenv("API_URL", "https://serverless.roboflow.com"),
     api_key=os.getenv("API_KEY")
-)
-
-result = client.run_workflow(
-    workspace_name=os.getenv("WORKSPACE_NAME"),
-    workflow_id=os.getenv("WORKFLOW_ID"),
-    images={
-        "image2": os.path.join(os.path.dirname(__file__), "inputs", "mk8d-sb-10.jpg")
-    },
-    use_cache=True # cache workflow definition for 15 minutes
 )
 
 class PlayerResult:
@@ -44,7 +36,6 @@ def extract_player_data(ocr_prediction):
             "score": player_score}
 
 def build_player_result(ocr_predictions):
-    players = []
     player = PlayerResult(None, None, None)
 
     for pred in ocr_predictions['predictions']:
@@ -60,10 +51,33 @@ def build_player_result(ocr_predictions):
     print(f"Player result - Position: {player.position}, Name: {player.name}, Score: {player.score}")
     return player
         
+def build_players_results(results):
+    players_results = []
+    result_ocr = results[0]["easy_ocr"]
+    for item in result_ocr[0]:
+        ocr_predictions = item['predictions']
+        players_results.append(build_player_result(ocr_predictions))
 
-result_ocr = result[0]["easy_ocr"]
-for item in result_ocr[0]:
-    ocr_predictions = item['predictions']
+    return players_results
 
-    player_results = []
-    player_results.append(build_player_result(ocr_predictions))
+def process_image(file):
+    return inference_http_client.run_workflow(
+        workspace_name=os.getenv("WORKSPACE_NAME"),
+        workflow_id=os.getenv("WORKFLOW_ID"),
+        images={
+            "image2": file
+        },
+        use_cache=True # cache workflow definition for 15 minutes
+    )
+
+def get_results(file_name):
+    file = download_file_from_bucket(
+        file_name
+    )
+
+    process_image_results = process_image(file)
+    players_results = build_players_results(process_image_results)
+    
+    delete_tmp_file(file_name)
+
+    return players_results
