@@ -4,6 +4,7 @@ from inference_sdk import InferenceHTTPClient
 from dotenv import load_dotenv
 from filemngmt import delete_tmp_file, download_file_from_bucket
 from msgproducer import produce_message
+from repository import add_processed_image
 
 load_dotenv()
 
@@ -87,7 +88,8 @@ def process_file(file_name):
 
     analysis_results = analyze_image(file)
     players_results = build_players_results(analysis_results)
-    # Store results in database
+    
+    add_processed_image(file_name, players_results)
 
     delete_tmp_file(file_name)
     print(f"Finished processing file: {file_name}")
