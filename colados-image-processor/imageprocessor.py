@@ -3,13 +3,15 @@ from pydoc import text
 from inference_sdk import InferenceHTTPClient
 from dotenv import load_dotenv
 from filemngmt import delete_tmp_file, download_file_from_bucket
+from msgproducer import produce_message
 
 load_dotenv()
 
 inference_http_client = InferenceHTTPClient(
     api_url=os.getenv("API_URL", "https://serverless.roboflow.com"),
-    api_key=os.getenv("API_KEY")
+    api_key=os.getenv("API_KEY"),
 )
+
 
 class PlayerResult:
     def __init__(self, position, name, score):
@@ -17,8 +19,9 @@ class PlayerResult:
         self.name = name
         self.score = score
 
+
 def extract_player_data(ocr_prediction):
-    value = ocr_prediction['class']
+    value = ocr_prediction["class"]
     player_position = None
     player_char_name = None
     player_score = None
@@ -27,57 +30,73 @@ def extract_player_data(ocr_prediction):
         if 1 <= value_num <= 12:  # Positions are between 1 and 12
             player_position = value_num
         else:
-            player_score = value_num # If it's not a position and it's numeric, it must be the score
+            player_score = value_num  # If it's not a position and it's numeric, it must be the score
     except ValueError:
-        player_char_name = value # If it's not numeric, it must be the character's name
+        player_char_name = value  # If it's not numeric, it must be the character's name
 
-    return {"position": player_position,
-            "name": player_char_name,
-            "score": player_score}
+    return {
+        "position": player_position,
+        "name": player_char_name,
+        "score": player_score,
+    }
+
 
 def build_player_result(ocr_predictions):
     player = PlayerResult(None, None, None)
 
-    for pred in ocr_predictions['predictions']:
+    for pred in ocr_predictions["predictions"]:
         player_data = extract_player_data(pred)
 
-        if player_data['position'] is not None:
-            player.position = player_data['position']
-        elif player_data['name'] is not None:
-            player.name = player_data['name']
-        elif player_data['score'] is not None:
-            player.score = player_data['score']
+        if player_data["position"] is not None:
+            player.position = player_data["position"]
+        elif player_data["name"] is not None:
+            player.name = player_data["name"]
+        elif player_data["score"] is not None:
+            player.score = player_data["score"]
 
-    print(f"Player result - Position: {player.position}, Name: {player.name}, Score: {player.score}")
+    print(
+        f"Player result - Position: {player.position}, Name: {player.name}, Score: {player.score}"
+    )
     return player
-        
+
+
 def build_players_results(results):
     players_results = []
     result_ocr = results[0]["easy_ocr"]
     for item in result_ocr[0]:
-        ocr_predictions = item['predictions']
+        ocr_predictions = item["predictions"]
         players_results.append(build_player_result(ocr_predictions))
 
     return players_results
 
-def process_image(file):
+
+def analyze_image(file):
     return inference_http_client.run_workflow(
         workspace_name=os.getenv("WORKSPACE_NAME"),
         workflow_id=os.getenv("WORKFLOW_ID"),
-        images={
-            "image2": file
-        },
-        use_cache=True # cache workflow definition for 15 minutes
+        images={"image2": file},
+        use_cache=True,  # cache workflow definition for 15 minutes
     )
+
+
+def process_file(file_name):
+    print(f"Processing file: {file_name}")
+    file = download_file_from_bucket(file_name)
+    if not file:
+        return
+
+    analysis_results = analyze_image(file)
+    players_results = build_players_results(analysis_results)
+    # Store results in database
+
+    delete_tmp_file(file_name)
+    print(f"Finished processing file: {file_name}")
+
+    produce_message(file_name, {"players": [player.__dict__ for player in players_results]})
+
 
 def get_results(file_name):
-    file = download_file_from_bucket(
-        file_name
-    )
-
-    process_image_results = process_image(file)
-    players_results = build_players_results(process_image_results)
-    
-    delete_tmp_file(file_name)
+    # Fetch results from database
+    players_results = []
 
     return players_results
