@@ -3,7 +3,8 @@ from minio import Minio
 from dotenv import load_dotenv
 import io
 
-load_dotenv()
+env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.env"))
+load_dotenv(env_path)
 
 tmp_files_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp")
 bucket_name = os.getenv("MINIO_BUCKET_NAME", "colados-image-processor")

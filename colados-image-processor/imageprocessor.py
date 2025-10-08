@@ -1,10 +1,16 @@
 import os
 from pydoc import text
+from typing import Annotated
+from fastapi.params import Depends
 from inference_sdk import InferenceHTTPClient
 from dotenv import load_dotenv
+from requests import session
+from sqlmodel import Session
 from filemngmt import delete_tmp_file, download_file_from_bucket
 from msgproducer import produce_message
-from repository import add_processed_image
+from repository import store_processed_image_results
+from db import get_session
+from schemas import PlayerResult
 
 load_dotenv()
 
@@ -12,13 +18,6 @@ inference_http_client = InferenceHTTPClient(
     api_url=os.getenv("API_URL", "https://serverless.roboflow.com"),
     api_key=os.getenv("API_KEY"),
 )
-
-
-class PlayerResult:
-    def __init__(self, position, name, score):
-        self.position = position
-        self.name = name
-        self.score = score
 
 
 def extract_player_data(ocr_prediction):
@@ -43,7 +42,7 @@ def extract_player_data(ocr_prediction):
 
 
 def build_player_result(ocr_predictions):
-    player = PlayerResult(None, None, None)
+    player = PlayerResult()
 
     for pred in ocr_predictions["predictions"]:
         player_data = extract_player_data(pred)
@@ -80,7 +79,7 @@ def analyze_image(file):
     )
 
 
-def process_file(file_name):
+def process_file(session, file_name):
     print(f"Processing file: {file_name}")
     file = download_file_from_bucket(file_name)
     if not file:
@@ -88,17 +87,10 @@ def process_file(file_name):
 
     analysis_results = analyze_image(file)
     players_results = build_players_results(analysis_results)
-    
-    add_processed_image(file_name, players_results)
+
+    store_processed_image_results(session, file_name, players_results)
 
     delete_tmp_file(file_name)
     print(f"Finished processing file: {file_name}")
 
-    produce_message(file_name, {"players": [player.__dict__ for player in players_results]})
-
-
-def get_results(file_name):
-    # Fetch results from database
-    players_results = []
-
-    return players_results
+    produce_message(file_name, players_results)

@@ -4,45 +4,46 @@ FastAPI Image Processor - Colados Leaderboard
 A simple FastAPI application for processing Mario Kart images.
 """
 
+from contextlib import asynccontextmanager
+from typing_extensions import Annotated
 from fastapi import FastAPI
-from pydantic import BaseModel
 import logging
-from typing import List
-from imageprocessor import get_results
+from sqlmodel import SQLModel, Session
+from repository import get_processed_image_by_name
+from db import db_engine
+
+from fastapi.params import Depends
+from db import get_session
+from msgconsumer import consumer_connect
+from http import HTTPStatus as HttpStatus
+
+# Initialize FastAPI app
+app = FastAPI(
+    title="Colados Image Processor",
+    description="Service for processing Mario Kart scoreboard images",
+    version="1.0.0",
+)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    SQLModel.metadata.create_all(db_engine)
+    yield
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize FastAPI app
-app = FastAPI(
-    title="Colados Image Processor",
-    description="API for processing Mario Kart leaderboard images",
-    version="1.0.0",
-)
 
-
-class LeaderboardEntry(BaseModel):
-    position: str
-    player: str
-    score: str
-
-
-class ProcessingResult(BaseModel):
-    image_name: str
-    entries: List[LeaderboardEntry]
-    total_entries: int
-
-
-@app.get("/")
-async def root():
-    return get_results("mk8d-sb-10.jpg")
-
-
-@app.get("/health")
-async def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy", "service": "mario-kart-processor"}
+@app.get("/process/{image_name}", status_code=HttpStatus.OK)
+def get_processed_image(
+    session: Annotated[Session, Depends(get_session)], image_name: str
+):
+    result = get_processed_image_by_name(session, image_name)
+    if result:
+        return result
+    return {"error": "Processed image not found"}, HttpStatus.NOT_FOUND
 
 
 if __name__ == "__main__":
