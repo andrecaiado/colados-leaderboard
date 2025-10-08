@@ -1,15 +1,9 @@
 import os
-from pydoc import text
-from typing import Annotated
-from fastapi.params import Depends
 from inference_sdk import InferenceHTTPClient
 from dotenv import load_dotenv
-from requests import session
-from sqlmodel import Session
 from filemngmt import delete_tmp_file, download_file_from_bucket
 from msgproducer import produce_message
 from repository import store_processed_image_results
-from db import get_session
 from schemas import PlayerResult
 
 load_dotenv()

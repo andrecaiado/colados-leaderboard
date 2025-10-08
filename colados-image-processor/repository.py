@@ -1,10 +1,9 @@
 from datetime import datetime, timezone
-from typing import Annotated
 from dotenv import load_dotenv
-from fastapi.params import Depends
-from sqlmodel import Session, select
-from db import get_session
-from schemas import ProcessedImage
+from sqlmodel import select
+from mappers import to_processed_image_response
+from mappers import to_processed_image_response
+from schemas import ProcessedImage, ProcessedImageResponse
 
 load_dotenv()
 
@@ -34,7 +33,9 @@ def store_processed_image_results(session, image_name, results):
     session.commit()
 
 
-def get_processed_image_by_name(session, image_name) -> ProcessedImage | None:
+def get_processed_image_by_name(session, image_name) -> ProcessedImageResponse | None:
     query = select(ProcessedImage).where(ProcessedImage.image_name == image_name)
     result = session.exec(query).first()
-    return result
+    if result:
+        return to_processed_image_response(result)
+    return None

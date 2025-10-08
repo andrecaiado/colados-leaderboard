@@ -1,15 +1,11 @@
 import json
-import json
 import os
 import sys
 import time
-from typing import Annotated
 from dotenv import load_dotenv
-from fastapi.params import Depends
 import pika
 import signal
 
-from sqlmodel import Session
 from imageprocessor import process_file
 from schemas import ImageSubmittedMsg
 from db import get_session

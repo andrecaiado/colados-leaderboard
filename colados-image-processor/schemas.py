@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from pydantic import BaseModel
 from sqlmodel import Column, Field, SQLModel
@@ -30,3 +29,8 @@ class PlayerResult(BaseModel):
     position: int | None = None
     name: str | None = None
     score: int | None = None
+
+class ProcessedImageResponse(BaseModel):
+    image_name: str
+    processed_at: str
+    results: list[PlayerResult]

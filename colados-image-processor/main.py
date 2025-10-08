@@ -14,7 +14,6 @@ from db import db_engine
 
 from fastapi.params import Depends
 from db import get_session
-from msgconsumer import consumer_connect
 from http import HTTPStatus as HttpStatus
 
 # Initialize FastAPI app
