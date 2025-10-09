@@ -22,5 +22,8 @@
         "**/*.pyc": true,
         ".pytest_cache": true,
         "*.egg-info": true
+    },
+    "search.exclude": {
+        "**/venv": true
     }
 }

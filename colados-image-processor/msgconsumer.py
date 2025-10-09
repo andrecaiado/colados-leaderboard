@@ -8,7 +8,6 @@ import signal
 
 from imageprocessor import process_file
 from schemas import ImageSubmittedMsg
-from db import get_session
 
 # Always load .env from project root, one level above this file
 env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.env"))
@@ -34,14 +33,14 @@ def consumer_connect():
 connection, channel = consumer_connect()
 
 
-def consume_messages(session):
+def consume_messages():
     global connection, channel
 
     def callback(ch, method, properties, body):
         print(f" [x] Received {body.decode()}")
         msg = parse_msg_body_to_class(body)
         if msg:
-            process_file(session, msg.file_name)
+            process_file(msg.file_name)
             # ch.basic_ack(delivery_tag=method.delivery_tag)
 
     while True:
@@ -93,5 +92,4 @@ signal.signal(signal.SIGTERM, graceful_shutdown)
 signal.signal(signal.SIGINT, graceful_shutdown)
 
 if __name__ == "__main__":
-    for session in get_session():
-        consume_messages(session)
+    consume_messages()

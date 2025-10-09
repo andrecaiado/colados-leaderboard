@@ -41,6 +41,35 @@ services:
     networks:
       - colados-network
 
+  mongodb:
+    image: mongo:8.0.15-noble
+    container_name: mongodb-colados
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    ports:
+      - ${MONGODB_PORT}:27017
+    # volumes:
+    #   - ./mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - colados-network
+
+  mongo-express:
+    image: mongo-express:1.0-20-alpine3.19
+    container_name: mongo-express-colados
+    environment:
+      ME_CONFIG_BASICAUTH_USERNAME: ${ME_CONFIG_BASICAUTH_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_CONFIG_BASICAUTH_PASSWORD}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      ME_CONFIG_MONGODB_SERVER: ${ME_CONFIG_MONGODB_SERVER}
+      ME_CONFIG_MONGODB_PORT: ${MONGODB_PORT}
+    ports:
+      - ${ME_CONFIG_MONGODB_PORT}:8081
+    networks:
+      - colados-network
+
   postgres:
     image: postgres:18.0-alpine3.22
     container_name: postgres-colados

@@ -1,41 +1,45 @@
 from datetime import datetime, timezone
+from typing import Optional
+from bson import ObjectId
 from dotenv import load_dotenv
-from sqlmodel import select
-from mappers import to_processed_image_response
-from mappers import to_processed_image_response
-from schemas import ProcessedImage, ProcessedImageResponse
+from schemas import PlayerResult, ProcessedImageDoc
+from db import processed_images
 
 load_dotenv()
 
-
-def to_dict(obj):
-    if hasattr(obj, "__dict__"):
-        return dict(obj.__dict__)
-    return obj
-
-
-def store_processed_image_results(session, image_name, results):
-    if isinstance(results, list):
-        results_to_save = [to_dict(r) for r in results]
+def get_processed_image(id: Optional[str] = None, image_name: Optional[str] = None) -> ProcessedImageDoc | None:
+    if id:
+        doc = processed_images.find_one({"_id": ObjectId(id)})
+    elif image_name:
+        doc = processed_images.find_one({"image_name": image_name})
     else:
-        results_to_save = results
-
-    record = get_processed_image_by_name(session, image_name)
-    if record:
-        print(f"Image {image_name} already processed. Updating record.")
-        record.results = results_to_save
-        record.processed_at = datetime.now(timezone.utc)
-        session.commit()
-        return
-
-    new_image = ProcessedImage(image_name=image_name, results=results_to_save)
-    session.add(new_image)
-    session.commit()
-
-
-def get_processed_image_by_name(session, image_name) -> ProcessedImageResponse | None:
-    query = select(ProcessedImage).where(ProcessedImage.image_name == image_name)
-    result = session.exec(query).first()
-    if result:
-        return to_processed_image_response(result)
+        return None
+    
+    if doc:
+        # Convert MongoDB’s _id to string if needed
+        doc["id"] = str(doc["_id"])
+        return ProcessedImageDoc(**doc)
     return None
+
+def store_processed_image(image_name: str, results: list[dict]):
+    existing_doc = get_processed_image(image_name=image_name)
+
+    if existing_doc:
+        print(f"Image {image_name} already processed. Updating record.")
+        processed_images.update_one(
+            {"image_name": image_name},
+            {
+                "$set": {
+                    "results": results,
+                    "processed_at": datetime.now(timezone.utc).isoformat(),
+                }
+            },
+        )
+        return
+    
+    doc = ProcessedImageDoc(
+        image_name=image_name,
+        processed_at=datetime.now(timezone.utc).isoformat(),
+        results=results,
+    )
+    processed_images.insert_one(doc)

@@ -1,26 +1,25 @@
 import os
 from dotenv import load_dotenv
-from sqlmodel import Session, create_engine
+from pymongo import MongoClient
 
 env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.env"))
 load_dotenv(env_path)
 
+def get_mongo_client():
+    mongo_host = os.getenv("MONGODB_HOST", "localhost")
+    mongo_port = os.getenv("MONGODB_PORT", "27017")
+    mongo_user = os.getenv("MONGO_INITDB_ROOT_USERNAME")
+    mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
+    mongo_uri = f"mongodb://{mongo_user}:{mongo_password}@{mongo_host}:{mongo_port}/admin"
+    client = MongoClient(mongo_uri)
+    return client
 
-def get_database_engine():
-    db_user = os.getenv("POSTGRES_USER", "colados_user")
-    db_password = os.getenv("POSTGRES_PASSWORD", "colados_password")
-    db_host = os.getenv("POSTGRES_HOST", "localhost")
-    db_port = os.getenv("POSTGRES_PORT", "5432")
-    db_name = os.getenv("POSTGRES_DB", "colados_image_processor_db")
+# Create a MongoDB client
+client = get_mongo_client()
 
-    database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-    engine = create_engine(database_url)
-    return engine
+# Access a database
+db = client["colados_image_processor_db"]
 
-
-db_engine = get_database_engine()
-
-
-def get_session():
-    with Session(db_engine) as session:
-        yield session
+# Access a collection
+processed_images = db["processed_images"]
+    
