@@ -49,7 +49,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
       MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
     ports:
-      - ${MONGODB_PORT}:27017
+      - ${MONGO_PORT}:27017
     # volumes:
     #   - ./mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
@@ -64,23 +64,9 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
       ME_CONFIG_MONGODB_SERVER: ${ME_CONFIG_MONGODB_SERVER}
-      ME_CONFIG_MONGODB_PORT: ${MONGODB_PORT}
+      ME_CONFIG_MONGODB_PORT: ${MONGO_PORT}
     ports:
       - ${ME_CONFIG_MONGODB_PORT}:8081
-    networks:
-      - colados-network
-
-  postgres:
-    image: postgres:18.0-alpine3.22
-    container_name: postgres-colados
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - ${POSTGRES_PORT}:5432
-    volumes:
-      - pgdata:/var/lib/postgresql/data
     networks:
       - colados-network
 

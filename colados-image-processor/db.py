@@ -6,8 +6,8 @@ env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.env"))
 load_dotenv(env_path)
 
 def get_mongo_client():
-    mongo_host = os.getenv("MONGODB_HOST", "localhost")
-    mongo_port = os.getenv("MONGODB_PORT", "27017")
+    mongo_host = os.getenv("MONGO_HOST", "localhost")
+    mongo_port = os.getenv("MONGO_PORT", "27017")
     mongo_user = os.getenv("MONGO_INITDB_ROOT_USERNAME")
     mongo_password = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
     mongo_uri = f"mongodb://{mongo_user}:{mongo_password}@{mongo_host}:{mongo_port}/admin"

@@ -34,8 +34,11 @@ source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 ```shell
 pip install -r requirements.txt
 ```
-4. Set up environment variables for Roboflow and Postgres services (see `.env` file for reference).
+4. Set up environment variables for Roboflow, MongoDB, and MongoExpress services (see `.env` file for reference).
 5. Make sure you have RabbitMQ service running (you can use the docker compose setup in the parent repository and start the RabbitMQ service).
+```shell
+docker compose up -d rabbitmq mongodb mongo-express
+```
 6. Start the FastAPI application.
 ```shell
 uvicorn main:app --reload

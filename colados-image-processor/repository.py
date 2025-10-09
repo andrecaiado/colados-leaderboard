@@ -2,12 +2,12 @@ from datetime import datetime, timezone
 from typing import Optional
 from bson import ObjectId
 from dotenv import load_dotenv
-from schemas import PlayerResult, ProcessedImageDoc
+from schemas import ProcessedImage
 from db import processed_images
 
 load_dotenv()
 
-def get_processed_image(id: Optional[str] = None, image_name: Optional[str] = None) -> ProcessedImageDoc | None:
+def get_processed_image(id: Optional[str] = None, image_name: Optional[str] = None) -> ProcessedImage | None:
     if id:
         doc = processed_images.find_one({"_id": ObjectId(id)})
     elif image_name:
@@ -18,7 +18,7 @@ def get_processed_image(id: Optional[str] = None, image_name: Optional[str] = No
     if doc:
         # Convert MongoDB’s _id to string if needed
         doc["id"] = str(doc["_id"])
-        return ProcessedImageDoc(**doc)
+        return ProcessedImage(**doc)
     return None
 
 def store_processed_image(image_name: str, results: list[dict]):
@@ -37,7 +37,7 @@ def store_processed_image(image_name: str, results: list[dict]):
         )
         return
     
-    doc = ProcessedImageDoc(
+    doc = ProcessedImage(
         image_name=image_name,
         processed_at=datetime.now(timezone.utc).isoformat(),
         results=results,
