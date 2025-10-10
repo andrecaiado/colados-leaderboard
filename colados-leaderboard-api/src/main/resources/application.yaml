@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: colados-leaderboard-api
+
+# Minio configuration
+minio:
+  url: ${MINIO_ENDPOINT}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  bucket-name: ${MINIO_BUCKET_NAME}
+  secure: ${MINIO_SECURE}
