@@ -7,10 +7,8 @@ from db import processed_files
 
 load_dotenv()
 
-def get_processed_file(id: Optional[str] = None, file_name: Optional[str] = None) -> ProcessedFile | None:
-    if id:
-        doc = processed_files.find_one({"_id": ObjectId(id)})
-    elif file_name:
+def get_processed_file(file_name: str) -> ProcessedFile | None:
+    if file_name:
         doc = processed_files.find_one({"file_name": file_name})
     else:
         return None
@@ -26,9 +24,10 @@ def store_processed_file(file_name: str, results: list[dict], status: Status):
 
     if existing_doc:
         print(f"File {file_name} already processed. Updating record.")
-        if existing_doc.status == Status.PROCESSED.value and status == Status.FAILED:
-            print(f"Existing status is PROCESSED. Not downgrading to FAILED.")
-            return
+        # Prevent downgrading status from PROCESSED to FAILED
+        # if existing_doc.status == Status.PROCESSED.value and status == Status.FAILED:
+        #     print(f"Existing status is PROCESSED. Not downgrading to FAILED.")
+        #     return
         processed_files.update_one(
             {"file_name": file_name},
             {

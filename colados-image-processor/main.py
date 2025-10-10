@@ -17,11 +17,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-@app.get("/processedfile/{file_id}", status_code=HttpStatus.OK)
+@app.get("/processedfile/{file_name}", status_code=HttpStatus.OK)
 def get_processedfile(
-    file_id: str
+    file_name: str
 ):
-    result = get_processed_file(id=file_id)
+    result = get_processed_file(file_name=file_name)
     if result:
         return result
     return {"error": "Processed file not found"}, HttpStatus.NOT_FOUND

@@ -13,7 +13,7 @@ The image analysis and data extraction is performed by a Roboflow model deployed
 5. Stores processed data in a PostgreSQL database.
 6. Publishes processed results to a RabbitMQ message queue.
 
-## Additional Features
+### Additional Features
 - Exposes an endpoint to get processed image results in JSON format.
 
 ## How to Run
