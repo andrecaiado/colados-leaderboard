@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from fastapi import FastAPI
 import logging
-from repository import get_processed_image
+from repository import get_processed_file
 
 from http import HTTPStatus as HttpStatus
 
@@ -17,14 +17,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-@app.get("/process/image/{img_id}", status_code=HttpStatus.OK)
-def get_process_image(
-    img_id: str
+@app.get("/processedfile/{file_id}", status_code=HttpStatus.OK)
+def get_processedfile(
+    file_id: str
 ):
-    result = get_processed_image(id=img_id)
+    result = get_processed_file(id=file_id)
     if result:
         return result
-    return {"error": "Processed image not found"}, HttpStatus.NOT_FOUND
+    return {"error": "Processed file not found"}, HttpStatus.NOT_FOUND
 
 
 if __name__ == "__main__":

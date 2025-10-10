@@ -1,9 +1,11 @@
 import os
+from sys import exception
 from inference_sdk import InferenceHTTPClient
 from dotenv import load_dotenv
 from filemngmt import delete_tmp_file, download_file_from_bucket
 from msgproducer import produce_message
-from repository import store_processed_image
+from repository import store_processed_file
+from schemas import Status
 
 load_dotenv()
 
@@ -63,7 +65,7 @@ def build_players_results(results):
     return players_results
 
 
-def analyze_image(file):
+def analyze_image(file) -> dict | Exception:
     try:
         return inference_http_client.run_workflow(
             workspace_name=os.getenv("WORKSPACE_NAME"),
@@ -73,7 +75,7 @@ def analyze_image(file):
         )
     except Exception as e:
         print(f"Error during image analysis: {e}")
-        return None
+        return e
 
 
 def process_file(file_name):
@@ -83,14 +85,16 @@ def process_file(file_name):
         return
 
     analysis_results = analyze_image(file)
-    if not analysis_results:
-        print(f"Failed to analyze image: {file_name}")
-        return
-    players_results = build_players_results(analysis_results)
+    if isinstance(analysis_results, Exception):
+        status = Status.FAILED
+        results = {"exception": str(analysis_results)}
+    else:
+        status = Status.PROCESSED
+        results = build_players_results(analysis_results)
 
-    store_processed_image(file_name, players_results)
+    store_processed_file(file_name, results, status)
 
     delete_tmp_file(file_name)
     print(f"Finished processing file: {file_name}")
 
-    produce_message(file_name, players_results)
+    produce_message(file_name, results, status)

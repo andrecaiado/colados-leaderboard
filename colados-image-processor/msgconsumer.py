@@ -7,7 +7,7 @@ import pika
 import signal
 
 from imageprocessor import process_file
-from schemas import ImageSubmittedMsg
+from schemas import FileSubmittedMsg
 
 # Always load .env from project root, one level above this file
 env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.env"))
@@ -69,7 +69,7 @@ def parse_msg_body_to_class(body):
         if isinstance(body, bytes):
             body = body.decode()
         msg_dict = json.loads(body)
-        msg = ImageSubmittedMsg(**msg_dict)
+        msg = FileSubmittedMsg(**msg_dict)
         return msg
     except json.JSONDecodeError:
         print("Error: Message body is not valid JSON.")

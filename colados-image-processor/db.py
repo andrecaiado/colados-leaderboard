@@ -21,5 +21,5 @@ client = get_mongo_client()
 db = client["colados_image_processor_db"]
 
 # Access a collection
-processed_images = db["processed_images"]
+processed_files = db["processed_files"]
     

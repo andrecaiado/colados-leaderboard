@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import json
 import os
 import time
@@ -5,7 +6,7 @@ from dotenv import load_dotenv
 import pika
 import signal
 import sys
-from schemas import ImageProcessedMsg
+from schemas import FileProcessedMsg, ProcessedFile
 
 env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.env"))
 load_dotenv(env_path)
@@ -30,10 +31,9 @@ def connect():
 connection, channel = connect()
 
 
-def produce_message(file_name, results):
+def produce_message(file_name, results, status):
     global connection, channel
-    players_results = {"players": [player.__dict__ for player in results]}
-    msg = ImageProcessedMsg(file_name=file_name, results=players_results)
+    msg = FileProcessedMsg(file_name=file_name, processed_at=datetime.now(timezone.utc).isoformat(), results=results, status=status)
     while True:
         try:
             channel.basic_publish(
