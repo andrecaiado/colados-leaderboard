@@ -1,5 +1,6 @@
 package com.example.colados_leaderboard_api.controller;
 
+import com.example.colados_leaderboard_api.service.ProcessedFileService;
 import com.example.colados_leaderboard_api.service.StorageService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,15 +14,14 @@ import java.io.IOException;
 @RequestMapping("/api/v1/processed-files")
 public class ProcessedFileController {
 
-    private final StorageService storageService;
+    private final ProcessedFileService processedFileService;
 
-    public ProcessedFileController(StorageService storageService) {
-        this.storageService = storageService;
+    public ProcessedFileController(ProcessedFileService processedFileService) {
+        this.processedFileService = processedFileService;
     }
 
     @PostMapping()
     public void handleFileUpload(@RequestParam("file") MultipartFile file) throws IOException {
-        // Implementation for processing the file goes here
-        this.storageService.uploadFile("colados-image-processor", file.getOriginalFilename(), file.getInputStream(), file.getContentType());
+        processedFileService.processFile(file);
     }
 }
