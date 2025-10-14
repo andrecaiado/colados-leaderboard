@@ -9,34 +9,26 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class FileProcessingService {
-
-    @Value("${minio.secure:false}")
-    private String secure ;
-
-    @Value("${minio.bucket-name}")
-    private String bucketName;
+public class FileHandlingService {
 
     private final StorageService storageService;
 
-    public FileProcessingService(StorageService storageService) {
+    public FileHandlingService(StorageService storageService) {
         this.storageService = storageService;
     }
 
-    public void processFile(MultipartFile file) throws IOException {
+    public String handleFile(MultipartFile file) throws IOException {
         // Logic to process the file can be added here
         String fileName = this.buildFileName(Objects.requireNonNull(file.getOriginalFilename()));
 
         // After processing, upload the file to the storage service
         try {
-            this.storageService.uploadFile(bucketName, fileName, file.getInputStream(), file.getContentType());
+            this.storageService.uploadFile(fileName, file.getInputStream(), file.getContentType());
         } catch (IOException e) {
             throw new IOException("Failed to upload file: " + e.getMessage());
         }
-        // Additional processing logic
-        // Add record to database
 
-
+        return fileName;
     }
 
     private String buildFileName(String originalFilename) {
