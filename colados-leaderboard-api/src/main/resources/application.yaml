@@ -19,6 +19,13 @@ spring:
         format_sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+  # RabbitMQ configuration
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: 5672
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASSWORD}
+
 # Minio configuration
 minio:
   url: ${MINIO_ENDPOINT}
@@ -26,3 +33,12 @@ minio:
   secret-key: ${MINIO_SECRET_KEY}
   bucket-name: ${MINIO_BUCKET_NAME}
   secure: ${MINIO_SECURE}
+
+# RabbitMQ queues, exchanges, and routing keys
+rabbitmq:
+  queue-img-submitted: ${RABBITMQ_QUEUE_IMG_SUBMITTED}
+  exchange-img-submitted: ${RABBITMQ_EXCHANGE_IMG_SUBMITTED}
+  routing-key-img-submitted: ${RABBITMQ_ROUTING_KEY_IMG_SUBMITTED}
+  queue-img-processed: ${RABBITMQ_QUEUE_IMG_PROCESSED}
+  exchange-img-processed: ${RABBITMQ_EXCHANGE_IMG_PROCESSED}
+  routing-key-img-processed: ${RABBITMQ_ROUTING_KEY_IMG_PROCESSED}
