@@ -1,6 +1,5 @@
 package com.example.colados_leaderboard_api.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -9,17 +8,17 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-public class FileHandlingService {
+public class FileService {
 
     private final StorageService storageService;
 
-    public FileHandlingService(StorageService storageService) {
+    public FileService(StorageService storageService) {
         this.storageService = storageService;
     }
 
-    public String handleFile(MultipartFile file) throws IOException {
+    public String uploadFileToStorage(MultipartFile file) throws IOException {
         // Logic to process the file can be added here
-        String fileName = this.buildFileName(Objects.requireNonNull(file.getOriginalFilename()));
+        String fileName = this.renameFile(Objects.requireNonNull(file.getOriginalFilename()));
 
         // After processing, upload the file to the storage service
         try {
@@ -31,7 +30,7 @@ public class FileHandlingService {
         return fileName;
     }
 
-    private String buildFileName(String originalFilename) {
+    private String renameFile(String originalFilename) {
         String fileExtension = "";
         int dotIndex = originalFilename.lastIndexOf('.');
         if (dotIndex >= 0) {
