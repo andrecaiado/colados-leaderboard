@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import pika
 import signal
 import sys
-from schemas import FileProcessedMsg, ProcessedFile
+from schemas import FileProcessedMsg
 
 env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.env"))
 load_dotenv(env_path)

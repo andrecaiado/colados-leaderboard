@@ -1,13 +1,11 @@
 from datetime import datetime, timezone
-from typing import Optional
-from bson import ObjectId
 from dotenv import load_dotenv
-from schemas import ProcessedFile, Status
+from schemas import ProcessedFileDetails, Status
 from db import processed_files
 
 load_dotenv()
 
-def get_processed_file(file_name: str) -> ProcessedFile | None:
+def get_processed_details(file_name: str) -> ProcessedFileDetails | None:
     if file_name:
         doc = processed_files.find_one({"file_name": file_name})
     else:
@@ -16,11 +14,11 @@ def get_processed_file(file_name: str) -> ProcessedFile | None:
     if doc:
         # Convert MongoDB’s _id to string if needed
         doc["id"] = str(doc["_id"])
-        return ProcessedFile(**doc)
+        return ProcessedFileDetails(**doc)
     return None
 
-def store_processed_file(file_name: str, results: list[dict], status: Status):
-    existing_doc = get_processed_file(file_name=file_name)
+def save_processed_file_details(file_name: str, results: list[dict], status: Status):
+    existing_doc = get_processed_details(file_name=file_name)
 
     if existing_doc:
         print(f"File {file_name} already processed. Updating record.")
@@ -40,7 +38,7 @@ def store_processed_file(file_name: str, results: list[dict], status: Status):
         )
         return
     
-    doc = ProcessedFile(
+    doc = ProcessedFileDetails(
         file_name=file_name,
         processed_at=datetime.now(timezone.utc).isoformat(),
         results=results,

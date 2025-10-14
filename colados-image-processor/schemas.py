@@ -7,7 +7,7 @@ class Status(Enum):
     PROCESSED = "processed"
     FAILED = "failed"
 
-class ProcessedFile(BaseModel):
+class ProcessedFileDetails(BaseModel):
     id: Optional[str] = None  # MongoDB document ID
     file_name: str
     processed_at: str  # or datetime if you handle conversion

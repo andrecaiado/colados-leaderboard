@@ -4,7 +4,7 @@ from inference_sdk import InferenceHTTPClient
 from dotenv import load_dotenv
 from filemngmt import delete_tmp_file, download_file_from_bucket
 from msgproducer import produce_message
-from repository import store_processed_file
+from repository import save_processed_file_details
 from schemas import Status
 
 load_dotenv()
@@ -80,6 +80,7 @@ def analyze_image(file) -> dict | Exception:
 
 def process_file(file_name):
     print(f"Processing file: {file_name}")
+    
     file = download_file_from_bucket(file_name)
     if not file:
         return
@@ -92,9 +93,8 @@ def process_file(file_name):
         status = Status.PROCESSED
         results = build_players_results(analysis_results)
 
-    store_processed_file(file_name, results, status)
-
     delete_tmp_file(file_name)
+
     print(f"Finished processing file: {file_name}")
 
-    produce_message(file_name, results, status)
+    return status, results

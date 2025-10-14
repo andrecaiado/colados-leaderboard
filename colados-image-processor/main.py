@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from fastapi import FastAPI
 import logging
-from repository import get_processed_file
+from repository import get_processed_details
 
 from http import HTTPStatus as HttpStatus
 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 def get_processedfile(
     file_name: str
 ):
-    result = get_processed_file(file_name=file_name)
+    result = get_processed_details(file_name=file_name)
     if result:
         return result
     return {"error": "Processed file not found"}, HttpStatus.NOT_FOUND

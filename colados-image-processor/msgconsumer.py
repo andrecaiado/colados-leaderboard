@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import pika
 import signal
 
-from imageprocessor import process_file
+from msgprocessor import process_message
 from schemas import FileSubmittedMsg
 
 # Always load .env from project root, one level above this file
@@ -40,7 +40,7 @@ def consume_messages():
         print(f" [x] Received {body.decode()}")
         msg = parse_msg_body_to_class(body)
         if msg:
-            process_file(msg.file_name)
+            process_message(msg)
             # ch.basic_ack(delivery_tag=method.delivery_tag)
 
     while True:
