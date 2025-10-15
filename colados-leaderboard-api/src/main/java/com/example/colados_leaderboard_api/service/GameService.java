@@ -1,10 +1,13 @@
 package com.example.colados_leaderboard_api.service;
 
 import com.example.colados_leaderboard_api.dto.GameDto;
+import com.example.colados_leaderboard_api.dto.ImageProcessedMsg;
 import com.example.colados_leaderboard_api.dto.ImageSubmittedMsg;
 import com.example.colados_leaderboard_api.entity.Championship;
 import com.example.colados_leaderboard_api.entity.Game;
+import com.example.colados_leaderboard_api.enums.ImageProcessingStatus;
 import com.example.colados_leaderboard_api.enums.StatusForEdition;
+import com.example.colados_leaderboard_api.mapper.ImageProcessedMsgMapper;
 import com.example.colados_leaderboard_api.producer.MessageProducer;
 import com.example.colados_leaderboard_api.repository.GameRepository;
 import org.springframework.amqp.AmqpException;
@@ -57,5 +60,21 @@ public class GameService {
                 throw new Exception("Failed to send message to queue: " + e.getMessage());
             }
         }
+    }
+
+    public void updateGameFromProcessedMsg(ImageProcessedMsg imageProcessedMsg) throws Exception {
+        Optional<Game> gameOpt = this.getGameByScoreboardImageName(imageProcessedMsg.getFile_name());
+        if (gameOpt.isEmpty()) {
+            throw new Exception("Game not found with image name: " + imageProcessedMsg.getFile_name());
+        }
+
+        Game game = gameOpt.get();
+        game.setImageProcessingStatus(ImageProcessingStatus.valueOf(imageProcessedMsg.getStatus().toUpperCase()));
+        game.setGameResults(ImageProcessedMsgMapper.mapToGameResults(imageProcessedMsg.getResults(), game));
+        this.gameRepository.save(game);
+    }
+
+    private Optional<Game> getGameByScoreboardImageName(String imageName) {
+        return this.gameRepository.findByScoreboardImageName(imageName);
     }
 }

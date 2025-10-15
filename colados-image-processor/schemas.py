@@ -6,6 +6,7 @@ from enum import Enum
 class Status(Enum):
     PROCESSED = "processed"
     FAILED = "failed"
+    NONE = "none"
 
 class ProcessedFileDetails(BaseModel):
     id: Optional[str] = None 
