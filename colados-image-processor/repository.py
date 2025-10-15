@@ -19,7 +19,7 @@ def get_processed_details(file_name: str) -> ProcessedFileDetails | None:
 
 def save_processed_file_details(file_name: str, results: list[dict], status: Status):
     existing_doc = get_processed_details(file_name=file_name)
-
+    
     if existing_doc:
         print(f"File {file_name} already processed. Updating record.")
         # Prevent downgrading status from PROCESSED to FAILED
@@ -31,7 +31,7 @@ def save_processed_file_details(file_name: str, results: list[dict], status: Sta
             {
                 "$set": {
                     "results": results,
-                    "processed_at": datetime.now(timezone.utc).isoformat(),
+                    "processed_at": datetime.now(timezone.utc),
                     "status": status.value,
                 }
             },
@@ -40,7 +40,7 @@ def save_processed_file_details(file_name: str, results: list[dict], status: Sta
     
     doc = ProcessedFileDetails(
         file_name=file_name,
-        processed_at=datetime.now(timezone.utc).isoformat(),
+        processed_at=datetime.now(timezone.utc),
         results=results,
         status=status.value,
     )

@@ -33,7 +33,7 @@ connection, channel = connect()
 
 def produce_message(file_name, results, status):
     global connection, channel
-    msg = FileProcessedMsg(file_name=file_name, processed_at=datetime.now(timezone.utc).isoformat(), results=results, status=status)
+    msg = FileProcessedMsg(file_name=file_name, results=results, status=status)
     while True:
         try:
             channel.basic_publish(

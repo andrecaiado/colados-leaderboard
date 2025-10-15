@@ -9,5 +9,4 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ImageSubmittedMsg {
     private String file_name;
-    private Integer game_id;
 }

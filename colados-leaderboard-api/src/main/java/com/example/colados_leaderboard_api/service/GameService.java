@@ -50,7 +50,7 @@ public class GameService {
                 game.setScoreboardImageName(newFileName);
                 this.gameRepository.save(game);
 
-                this.messageProducer.sendMessage(new ImageSubmittedMsg(newFileName, game.getId()));
+                this.messageProducer.sendMessage(new ImageSubmittedMsg(newFileName));
             } catch (IOException e) {
                 throw new Exception("Failed to handle file: " + e.getMessage());
             } catch (AmqpException e) {

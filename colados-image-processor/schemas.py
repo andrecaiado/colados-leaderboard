@@ -8,10 +8,10 @@ class Status(Enum):
     FAILED = "failed"
 
 class ProcessedFileDetails(BaseModel):
-    id: Optional[str] = None  # MongoDB document ID
+    id: Optional[str] = None 
     file_name: str
-    processed_at: str  # or datetime if you handle conversion
-    results: list[dict] | dict  # Can be a list of player results or an exception dict
+    processed_at: datetime
+    results: list[dict]
     status: Status
 
     class Config:
@@ -23,8 +23,7 @@ class FileSubmittedMsg(BaseModel):
 
 class FileProcessedMsg(BaseModel):
     file_name: str
-    processed_at: str | None = datetime.now(timezone.utc).isoformat()
-    results: list[dict] | dict  # Can be a list of player results or an exception dict
+    results: list[dict]
     status: Status
 
     class Config:

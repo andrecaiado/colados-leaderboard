@@ -67,6 +67,7 @@ def build_players_results(results):
 
 def analyze_image(file) -> dict | Exception:
     try:
+        # raise RuntimeError("Simulated analysis failure")
         return inference_http_client.run_workflow(
             workspace_name=os.getenv("WORKSPACE_NAME"),
             workflow_id=os.getenv("WORKFLOW_ID"),
@@ -88,7 +89,7 @@ def process_file(file_name):
     analysis_results = analyze_image(file)
     if isinstance(analysis_results, Exception):
         status = Status.FAILED
-        results = {"exception": str(analysis_results)}
+        results = [{"exception": str(analysis_results)}]
     else:
         status = Status.PROCESSED
         results = build_players_results(analysis_results)
