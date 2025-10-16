@@ -8,10 +8,12 @@ import com.example.colados_leaderboard_api.entity.Championship;
 import com.example.colados_leaderboard_api.entity.Game;
 import com.example.colados_leaderboard_api.enums.ImageProcessingStatus;
 import com.example.colados_leaderboard_api.enums.StatusForEdition;
+import com.example.colados_leaderboard_api.event.GameResultsCreatedFromProcessedMsg;
 import com.example.colados_leaderboard_api.mapper.ImageProcessedMsgMapper;
 import com.example.colados_leaderboard_api.producer.MessageProducer;
 import com.example.colados_leaderboard_api.repository.GameRepository;
 import org.springframework.amqp.AmqpException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,12 +27,14 @@ public class GameService {
     private final ChampionshipService championshipService;
     private final GameRepository gameRepository;
     private final MessageProducer messageProducer;
+    private final ApplicationEventPublisher publisher;
 
-    public GameService(FileService fileService, ChampionshipService championshipService, GameRepository gameRepository, MessageProducer messageProducer) {
+    public GameService(FileService fileService, ChampionshipService championshipService, GameRepository gameRepository, MessageProducer messageProducer, ApplicationEventPublisher publisher) {
         this.fileService = fileService;
         this.championshipService = championshipService;
         this.gameRepository = gameRepository;
         this.messageProducer = messageProducer;
+        this.publisher = publisher;
     }
 
     public void registerGame(GameDto gameDto, MultipartFile file) throws Exception {
@@ -76,10 +80,17 @@ public class GameService {
             System.err.println("Failed to set image processing status: " + e.getMessage());
             return;
         }
-        if (imageProcessedMsg.getStatus().equalsIgnoreCase(ImageProcessingStatus.PROCESSED.toString())) {
+        if (game.getImageProcessingStatus() == ImageProcessingStatus.PROCESSED) {
             game.setGameResults(ImageProcessedMsgMapper.mapToGameResults(imageProcessedMsg.getResults(), game));
         }
         this.gameRepository.save(game);
+        System.out.println("Game updated with image processing status: " + game.getImageProcessingStatus());
+
+        // If the image was processed successfully, publish an event
+        if (game.getImageProcessingStatus() == ImageProcessingStatus.PROCESSED) {
+            this.publisher.publishEvent(new GameResultsCreatedFromProcessedMsg(this, game.getId()));
+        }
+        System.out.println("End of updateGameFromProcessedMsg");
     }
 
     private Optional<Game> getGameByScoreboardImageName(String imageName) {
