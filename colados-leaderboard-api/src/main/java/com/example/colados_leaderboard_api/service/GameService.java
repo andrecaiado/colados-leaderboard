@@ -1,5 +1,6 @@
 package com.example.colados_leaderboard_api.service;
 
+import com.example.colados_leaderboard_api.constants.BusinessProperties;
 import com.example.colados_leaderboard_api.dto.GameDto;
 import com.example.colados_leaderboard_api.dto.ImageProcessedMsg;
 import com.example.colados_leaderboard_api.dto.ImageSubmittedMsg;
@@ -69,8 +70,15 @@ public class GameService {
         }
 
         Game game = gameOpt.get();
-        game.setImageProcessingStatus(ImageProcessingStatus.valueOf(imageProcessedMsg.getStatus().toUpperCase()));
-        game.setGameResults(ImageProcessedMsgMapper.mapToGameResults(imageProcessedMsg.getResults(), game));
+        try {
+            game.setImageProcessingStatus(ImageProcessingStatus.valueOf(imageProcessedMsg.getStatus().toUpperCase()));
+        } catch (Exception e) {
+            System.err.println("Failed to set image processing status: " + e.getMessage());
+            return;
+        }
+        if (imageProcessedMsg.getStatus().equalsIgnoreCase(ImageProcessingStatus.PROCESSED.toString())) {
+            game.setGameResults(ImageProcessedMsgMapper.mapToGameResults(imageProcessedMsg.getResults(), game));
+        }
         this.gameRepository.save(game);
     }
 

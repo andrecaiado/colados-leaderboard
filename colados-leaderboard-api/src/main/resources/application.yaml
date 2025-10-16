@@ -42,3 +42,7 @@ rabbitmq:
   queue-img-processed: ${RABBITMQ_QUEUE_IMG_PROCESSED}
   exchange-img-processed: ${RABBITMQ_EXCHANGE_IMG_PROCESSED}
   routing-key-img-processed: ${RABBITMQ_ROUTING_KEY_IMG_PROCESSED}
+
+# Business rules
+business-rules:
+  game-max-score: 60

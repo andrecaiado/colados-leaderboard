@@ -1,5 +1,6 @@
 package com.example.colados_leaderboard_api.mapper;
 
+import com.example.colados_leaderboard_api.constants.BusinessProperties;
 import com.example.colados_leaderboard_api.entity.Game;
 import com.example.colados_leaderboard_api.entity.GameResult;
 
@@ -7,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 public final class ImageProcessedMsgMapper {
+
+    private static final BusinessProperties businessProperties = new BusinessProperties();
+
     private ImageProcessedMsgMapper() {
         // Prevent instantiation
     }
@@ -20,7 +24,7 @@ public final class ImageProcessedMsgMapper {
                         (Integer) result.get("position"),
                         (String) result.get("name"),
                         (Integer) result.get("score"),
-                        null
+                        result.get("score") != null && (Integer) result.get("score") >= businessProperties.getGameMaxScore()
                 ))
                 .toList();
 
