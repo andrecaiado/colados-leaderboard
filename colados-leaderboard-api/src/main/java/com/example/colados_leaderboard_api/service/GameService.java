@@ -1,6 +1,5 @@
 package com.example.colados_leaderboard_api.service;
 
-import com.example.colados_leaderboard_api.constants.BusinessProperties;
 import com.example.colados_leaderboard_api.dto.GameDto;
 import com.example.colados_leaderboard_api.dto.ImageProcessedMsg;
 import com.example.colados_leaderboard_api.dto.ImageSubmittedMsg;
@@ -28,13 +27,15 @@ public class GameService {
     private final GameRepository gameRepository;
     private final MessageProducer messageProducer;
     private final ApplicationEventPublisher publisher;
+    private final ImageProcessedMsgMapper imageProcessedMsgMapper;
 
-    public GameService(FileService fileService, ChampionshipService championshipService, GameRepository gameRepository, MessageProducer messageProducer, ApplicationEventPublisher publisher) {
+    public GameService(FileService fileService, ChampionshipService championshipService, GameRepository gameRepository, MessageProducer messageProducer, ApplicationEventPublisher publisher, ImageProcessedMsgMapper imageProcessedMsgMapper) {
         this.fileService = fileService;
         this.championshipService = championshipService;
         this.gameRepository = gameRepository;
         this.messageProducer = messageProducer;
         this.publisher = publisher;
+        this.imageProcessedMsgMapper = imageProcessedMsgMapper;
     }
 
     public void registerGame(GameDto gameDto, MultipartFile file) throws Exception {
@@ -81,7 +82,7 @@ public class GameService {
             return;
         }
         if (game.getImageProcessingStatus() == ImageProcessingStatus.PROCESSED) {
-            game.setGameResults(ImageProcessedMsgMapper.mapToGameResults(imageProcessedMsg.getResults(), game));
+            game.setGameResults(imageProcessedMsgMapper.mapToGameResults(imageProcessedMsg.getResults(), game));
         }
         this.gameRepository.save(game);
         System.out.println("Game updated with image processing status: " + game.getImageProcessingStatus());

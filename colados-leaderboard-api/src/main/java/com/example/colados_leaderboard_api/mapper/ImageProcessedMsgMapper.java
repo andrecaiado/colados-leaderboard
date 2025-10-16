@@ -1,21 +1,23 @@
 package com.example.colados_leaderboard_api.mapper;
 
-import com.example.colados_leaderboard_api.constants.BusinessProperties;
+import com.example.colados_leaderboard_api.configuration.AppConstants;
 import com.example.colados_leaderboard_api.entity.Game;
 import com.example.colados_leaderboard_api.entity.GameResult;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 
-public final class ImageProcessedMsgMapper {
+@Component
+public class ImageProcessedMsgMapper {
 
-    private static final BusinessProperties businessProperties = new BusinessProperties();
+    private final AppConstants appConstants;
 
-    private ImageProcessedMsgMapper() {
-        // Prevent instantiation
+    public ImageProcessedMsgMapper(AppConstants appConstants) {
+        this.appConstants = appConstants;
     }
 
-    public static List<GameResult> mapToGameResults(List<Map<String, Object>> gameResults, Game game) {
+    public List<GameResult> mapToGameResults(List<Map<String, Object>> gameResults, Game game) {
         return gameResults.stream()
                 .map(result -> new GameResult(
                         null,
@@ -24,7 +26,7 @@ public final class ImageProcessedMsgMapper {
                         (Integer) result.get("position"),
                         (String) result.get("name"),
                         (Integer) result.get("score"),
-                        result.get("score") != null && (Integer) result.get("score") >= businessProperties.getGameMaxScore()
+                        result.get("score") != null && (Integer) result.get("score") >= appConstants.getGameMaxScore()
                 ))
                 .toList();
 
