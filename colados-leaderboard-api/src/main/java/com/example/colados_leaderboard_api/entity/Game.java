@@ -42,5 +42,4 @@ public class Game {
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GameResult> gameResults = new ArrayList<>();
-
 }

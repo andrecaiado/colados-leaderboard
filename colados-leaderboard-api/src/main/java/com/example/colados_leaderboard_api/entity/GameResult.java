@@ -18,7 +18,9 @@ public class GameResult {
     @JoinColumn(name = "game_id", nullable = false)
     private Game game;
 
-    private Integer playerId;
+    @ManyToOne
+    @JoinColumn(name = "player_id", nullable = false)
+    private Player player;
 
     private Integer position;
     private String characterUsed;
