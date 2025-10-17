@@ -28,14 +28,16 @@ public class GameService {
     private final MessageProducer messageProducer;
     private final ApplicationEventPublisher publisher;
     private final ImageProcessedMsgMapper imageProcessedMsgMapper;
+    private final GameResultService gameResultService;
 
-    public GameService(FileService fileService, ChampionshipService championshipService, GameRepository gameRepository, MessageProducer messageProducer, ApplicationEventPublisher publisher, ImageProcessedMsgMapper imageProcessedMsgMapper) {
+    public GameService(FileService fileService, ChampionshipService championshipService, GameRepository gameRepository, MessageProducer messageProducer, ApplicationEventPublisher publisher, ImageProcessedMsgMapper imageProcessedMsgMapper, GameResultService gameResultService) {
         this.fileService = fileService;
         this.championshipService = championshipService;
         this.gameRepository = gameRepository;
         this.messageProducer = messageProducer;
         this.publisher = publisher;
         this.imageProcessedMsgMapper = imageProcessedMsgMapper;
+        this.gameResultService = gameResultService;
     }
 
     public void registerGame(GameDto gameDto, MultipartFile file) throws Exception {
@@ -96,5 +98,19 @@ public class GameService {
 
     private Optional<Game> getGameByScoreboardImageName(String imageName) {
         return this.gameRepository.findByScoreboardImageName(imageName);
+    }
+
+    public void updateGameResultsPlayers(Integer gameId) {
+        Optional<Game> gameOpt = this.gameRepository.findById(gameId);
+        if (gameOpt.isEmpty()) {
+            System.err.println("Game not found with ID: " + gameId);
+            return;
+        }
+
+        Game game = gameOpt.get();
+        game.getGameResults().forEach(
+                this.gameResultService::setPlayerFromCharacterName
+        );
+        this.gameRepository.save(game);
     }
 }

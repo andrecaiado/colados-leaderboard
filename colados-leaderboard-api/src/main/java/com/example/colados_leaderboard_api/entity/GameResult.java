@@ -1,10 +1,13 @@
 package com.example.colados_leaderboard_api.entity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,12 +21,13 @@ public class GameResult {
     @JoinColumn(name = "game_id", nullable = false)
     private Game game;
 
+    @Nullable
     @ManyToOne
-    @JoinColumn(name = "player_id", nullable = false)
+    @JoinColumn(name = "player_id")
     private Player player;
 
     private Integer position;
-    private String characterUsed;
+    private String characterName;
     private Integer score;
     private Boolean maxScoreAchieved;
 }

@@ -40,6 +40,6 @@ public class Game {
     @Enumerated(EnumType.STRING)
     private ImageProcessingStatus imageProcessingStatus = ImageProcessingStatus.NONE;
 
-    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<GameResult> gameResults = new ArrayList<>();
 }

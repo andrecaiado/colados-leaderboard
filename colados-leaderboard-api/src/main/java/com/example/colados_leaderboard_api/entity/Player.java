@@ -1,10 +1,12 @@
 package com.example.colados_leaderboard_api.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.time.Instant;
 
+@Getter
 @Entity
 public class Player {
     @Id
@@ -15,6 +17,8 @@ public class Player {
     private Integer userId;
 
     @NotNull
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlayerCharacter> playerCharacters;
+    private String characterName;
+
+    @NotNull
+    private Instant createdAt;
 }
