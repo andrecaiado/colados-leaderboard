@@ -28,16 +28,16 @@ public class GameService {
     private final MessageProducer messageProducer;
     private final ApplicationEventPublisher publisher;
     private final ImageProcessedMsgMapper imageProcessedMsgMapper;
-    private final GameResultService gameResultService;
+    private final PlayerService playerService;
 
-    public GameService(FileService fileService, ChampionshipService championshipService, GameRepository gameRepository, MessageProducer messageProducer, ApplicationEventPublisher publisher, ImageProcessedMsgMapper imageProcessedMsgMapper, GameResultService gameResultService) {
+    public GameService(FileService fileService, ChampionshipService championshipService, GameRepository gameRepository, MessageProducer messageProducer, ApplicationEventPublisher publisher, ImageProcessedMsgMapper imageProcessedMsgMapper, PlayerService playerService) {
         this.fileService = fileService;
         this.championshipService = championshipService;
         this.gameRepository = gameRepository;
         this.messageProducer = messageProducer;
         this.publisher = publisher;
         this.imageProcessedMsgMapper = imageProcessedMsgMapper;
-        this.gameResultService = gameResultService;
+        this.playerService = playerService;
     }
 
     public void registerGame(GameDto gameDto, MultipartFile file) throws Exception {
@@ -108,8 +108,14 @@ public class GameService {
         }
 
         Game game = gameOpt.get();
-        game.getGameResults().forEach(
-                this.gameResultService::setPlayerFromCharacterName
+        game.getGameResults().forEach(gameResult -> {
+            gameResult.setPlayer(
+                playerService.getPlayerByCharacter(
+                        gameResult.getCharacterName(),
+                        gameResult.getGame().getPlayedAt()
+                )
+            );
+        }
         );
         this.gameRepository.save(game);
     }
