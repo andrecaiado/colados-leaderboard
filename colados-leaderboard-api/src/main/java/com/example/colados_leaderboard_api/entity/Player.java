@@ -3,7 +3,7 @@ package com.example.colados_leaderboard_api.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 
 @Getter

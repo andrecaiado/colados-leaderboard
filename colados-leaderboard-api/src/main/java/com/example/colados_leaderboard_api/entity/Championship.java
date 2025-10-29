@@ -1,9 +1,12 @@
 package com.example.colados_leaderboard_api.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.validation.constraints.NotNull;
-
+@Getter
+@Setter
 @Entity
 public class Championship {
     @Id
@@ -13,4 +16,6 @@ public class Championship {
     @NotNull
     @Column(unique = true)
     private String name;
+
+    private String description;
 }
