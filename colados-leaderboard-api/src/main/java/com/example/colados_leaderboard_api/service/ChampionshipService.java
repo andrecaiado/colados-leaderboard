@@ -9,6 +9,7 @@ import com.example.colados_leaderboard_api.repository.ChampionshipRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -24,12 +25,8 @@ public class ChampionshipService {
         return championshipRepository.findById(id).orElseThrow(() -> new EntityNotFound("Championship not found with ID: " + id));
     }
 
-    private Optional<Championship> getByName(String name) {
-        return championshipRepository.findByName(name);
-    }
-
     public ChampionshipDto createChampionship(CreateChampionshipDto createChampionshipDto) {
-        validateChampionshipUniqueName(createChampionshipDto.getName(), null);
+        ensureChampionshipNameIsUnique(createChampionshipDto.getName(), null);
 
         Championship championship = new Championship();
         championship.setName(createChampionshipDto.getName());
@@ -43,7 +40,7 @@ public class ChampionshipService {
     public void updateChampionship(Integer id, CreateChampionshipDto updateChampionshipDto) throws EntityNotFound {
         Championship championshipToUpdate = getById(id);
 
-        validateChampionshipUniqueName(updateChampionshipDto.getName(), id);
+        ensureChampionshipNameIsUnique(updateChampionshipDto.getName(), id);
 
         championshipToUpdate.setName(updateChampionshipDto.getName());
         championshipToUpdate.setDescription(updateChampionshipDto.getDescription());
@@ -51,10 +48,9 @@ public class ChampionshipService {
         championshipRepository.save(championshipToUpdate);
     }
 
-    private void validateChampionshipUniqueName(String name, Integer id) {
-        Optional<Championship> existingChampionship = id == null ? getByName(name) : championshipRepository.findByNameAndIdNot(name, id);
-
-        if (existingChampionship.isPresent()) {
+    private void ensureChampionshipNameIsUnique(String name, Integer currentChampionshipId) {
+        Optional<Championship> existing = championshipRepository.findByName(name);
+        if (existing.isPresent() && !Objects.equals(existing.get().getId(), currentChampionshipId)) {
             throw new DataIntegrityViolationException("Championship with name '" + name + "' already exists.");
         }
     }

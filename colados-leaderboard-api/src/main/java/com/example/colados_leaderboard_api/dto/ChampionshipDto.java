@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChampionshipDto {
+    private Integer id;
     private String name;
     private String description;
 }

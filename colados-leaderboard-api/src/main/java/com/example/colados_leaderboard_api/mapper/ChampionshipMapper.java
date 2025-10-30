@@ -12,6 +12,7 @@ public final class ChampionshipMapper {
     public static ChampionshipDto toDto(Championship championship) {
         if (championship == null) return null;
         ChampionshipDto dto = new ChampionshipDto();
+        dto.setId(championship.getId());
         dto.setName(championship.getName());
         dto.setDescription(championship.getDescription());
         return dto;
