@@ -1,6 +1,7 @@
 package com.example.colados_leaderboard_api.service;
 
 import com.example.colados_leaderboard_api.dto.GameDto;
+import com.example.colados_leaderboard_api.dto.RegisterGameDto;
 import com.example.colados_leaderboard_api.dto.ImageProcessedMsg;
 import com.example.colados_leaderboard_api.dto.ImageSubmittedMsg;
 import com.example.colados_leaderboard_api.entity.Championship;
@@ -9,11 +10,13 @@ import com.example.colados_leaderboard_api.enums.ImageProcessingStatus;
 import com.example.colados_leaderboard_api.enums.StatusForEdition;
 import com.example.colados_leaderboard_api.event.GameResultsCreatedFromProcessedMsg;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
+import com.example.colados_leaderboard_api.mapper.GameMapper;
 import com.example.colados_leaderboard_api.mapper.ImageProcessedMsgMapper;
 import com.example.colados_leaderboard_api.producer.MessageProducer;
 import com.example.colados_leaderboard_api.repository.GameRepository;
 import org.springframework.amqp.AmqpException;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,9 +44,9 @@ public class GameService {
         this.playerService = playerService;
     }
 
-    public void registerGame(GameDto gameDto, MultipartFile file) throws Exception {
+    public void registerGame(RegisterGameDto registerGameDto, MultipartFile file) throws Exception {
         // Validate championship exists
-        Championship championship = championshipService.getById(gameDto.getChampionshipId());
+        Championship championship = championshipService.getById(registerGameDto.getChampionshipId());
 
         // Register game played
         Game game = new Game();
@@ -112,5 +115,22 @@ public class GameService {
         }
         );
         this.gameRepository.save(game);
+    }
+
+    private Game getGameById(Integer id) throws EntityNotFound {
+        Optional<Game> gameOpt = this.gameRepository.findById(id);
+        if (gameOpt.isEmpty()) {
+            throw new EntityNotFound("Game not found with ID: " + id);
+        }
+        return gameOpt.get();
+    }
+
+    public GameDto getGame(Integer id) throws EntityNotFound {
+        return GameMapper.toDto(this.getGameById(id));
+    }
+
+    public Iterable<GameDto> getAllGames() {
+        Iterable<Game> games = this.gameRepository.findAll(Sort.by(Sort.Direction.DESC, "playedAt"));
+        return GameMapper.toDtoList(games);
     }
 }

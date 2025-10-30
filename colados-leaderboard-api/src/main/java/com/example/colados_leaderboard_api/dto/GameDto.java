@@ -1,6 +1,7 @@
 package com.example.colados_leaderboard_api.dto;
 
-import jakarta.annotation.Nullable;
+import com.example.colados_leaderboard_api.enums.ImageProcessingStatus;
+import com.example.colados_leaderboard_api.enums.StatusForEdition;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,8 +12,11 @@ import java.time.Instant;
 @Getter
 @NoArgsConstructor
 public class GameDto {
-    @Nullable
+    private Integer id;
     private Integer championshipId;
-
+    private String championshipName;
     private Instant playedAt = Instant.now();
+    private StatusForEdition statusForEdition;
+    private String scoreboardImageName;
+    private ImageProcessingStatus imageProcessingStatus;
 }

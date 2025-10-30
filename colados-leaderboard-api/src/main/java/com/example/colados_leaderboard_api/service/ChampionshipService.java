@@ -73,7 +73,7 @@ public class ChampionshipService {
     }
 
     public Iterable<ChampionshipDto> getAllChampionships() {
-        Iterable<Championship> championships = championshipRepository.findAll(Sort.by("name"));
+        Iterable<Championship> championships = championshipRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
         return ChampionshipMapper.toDtoList(championships);
     }
 }
