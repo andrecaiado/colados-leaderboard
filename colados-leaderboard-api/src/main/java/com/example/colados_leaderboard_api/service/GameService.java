@@ -43,7 +43,7 @@ public class GameService {
 
     public void registerGame(GameDto gameDto, MultipartFile file) throws Exception {
         // Validate championship exists
-        Optional<Championship> championship = championshipService.findById(gameDto.getChampionshipId());
+        Optional<Championship> championship = championshipService.getById(gameDto.getChampionshipId());
         if (championship.isEmpty()) {
             throw new EntityNotFound("Championship not found with ID: " + gameDto.getChampionshipId());
         }

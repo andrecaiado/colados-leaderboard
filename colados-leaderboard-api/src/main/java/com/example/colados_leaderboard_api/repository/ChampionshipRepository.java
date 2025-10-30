@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface ChampionshipRepository extends JpaRepository<Championship, Integer> {
     Optional<Championship> findByName(String name);
+
+    Optional<Championship> findByNameAndIdNot(String name, Integer id);
 }

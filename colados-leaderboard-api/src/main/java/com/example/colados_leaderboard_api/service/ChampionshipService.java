@@ -3,6 +3,7 @@ package com.example.colados_leaderboard_api.service;
 import com.example.colados_leaderboard_api.dto.ChampionshipDto;
 import com.example.colados_leaderboard_api.dto.CreateChampionshipDto;
 import com.example.colados_leaderboard_api.entity.Championship;
+import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.mapper.ChampionshipMapper;
 import com.example.colados_leaderboard_api.repository.ChampionshipRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,26 +20,43 @@ public class ChampionshipService {
         this.championshipRepository = championshipRepository;
     }
 
-    public Optional<Championship> findById(Integer id) {
+    public Optional<Championship> getById(Integer id) {
         return championshipRepository.findById(id);
     }
 
-    private Optional<Championship> findByName(String name) {
+    private Optional<Championship> getByName(String name) {
         return championshipRepository.findByName(name);
     }
 
     public ChampionshipDto createChampionship(CreateChampionshipDto createChampionshipDto) {
+        validateChampionshipUniqueName(createChampionshipDto.getName(), null);
+
         Championship championship = new Championship();
         championship.setName(createChampionshipDto.getName());
         championship.setDescription(createChampionshipDto.getDescription());
 
-        Optional<Championship> existingChampionship = findByName(createChampionshipDto.getName());
-        if (existingChampionship.isPresent()) {
-            throw new DataIntegrityViolationException("Championship with name '" + createChampionshipDto.getName() + "' already exists.");
-        }
-
         Championship createdChampionship = championshipRepository.save(championship);
 
         return ChampionshipMapper.toDto(createdChampionship);
+    }
+
+    public void updateChampionship(Integer id, CreateChampionshipDto updateChampionshipDto) throws EntityNotFound {
+        Championship championshipToUpdate = championshipRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFound("Championship not found with ID: " + id));
+
+        validateChampionshipUniqueName(updateChampionshipDto.getName(), id);
+
+        championshipToUpdate.setName(updateChampionshipDto.getName());
+        championshipToUpdate.setDescription(updateChampionshipDto.getDescription());
+
+        championshipRepository.save(championshipToUpdate);
+    }
+
+    private void validateChampionshipUniqueName(String name, Integer id) {
+        Optional<Championship> existingChampionship = id == null ? getByName(name) : championshipRepository.findByNameAndIdNot(name, id);
+
+        if (existingChampionship.isPresent()) {
+            throw new DataIntegrityViolationException("Championship with name '" + name + "' already exists.");
+        }
     }
 }
