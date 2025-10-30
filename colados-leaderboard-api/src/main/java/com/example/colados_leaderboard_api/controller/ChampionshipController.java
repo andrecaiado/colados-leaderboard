@@ -33,4 +33,9 @@ public class ChampionshipController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteChampionship(@PathVariable Integer id) throws EntityNotFound {
+        championshipService.deleteChampionship(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -59,4 +59,16 @@ public class ChampionshipService {
             throw new DataIntegrityViolationException("Championship with name '" + name + "' already exists.");
         }
     }
+
+    public void deleteChampionship(Integer id) throws EntityNotFound {
+        Championship championshipToDelete = championshipRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFound("Championship not found with ID: " + id));
+        try {
+            // Attempt to delete the championship
+            championshipRepository.delete(championshipToDelete);
+        } catch (DataIntegrityViolationException e) {
+            // Handle the case where the championship is referenced by other entities
+            throw new DataIntegrityViolationException("Cannot delete championship with ID: " + id + " as it is referenced by other entities.");
+        }
+    }
 }
