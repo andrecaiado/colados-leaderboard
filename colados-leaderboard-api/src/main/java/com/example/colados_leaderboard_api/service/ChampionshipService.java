@@ -20,8 +20,8 @@ public class ChampionshipService {
         this.championshipRepository = championshipRepository;
     }
 
-    public Optional<Championship> getById(Integer id) {
-        return championshipRepository.findById(id);
+    public Championship getById(Integer id) throws EntityNotFound {
+        return championshipRepository.findById(id).orElseThrow(() -> new EntityNotFound("Championship not found with ID: " + id));
     }
 
     private Optional<Championship> getByName(String name) {
@@ -41,8 +41,7 @@ public class ChampionshipService {
     }
 
     public void updateChampionship(Integer id, CreateChampionshipDto updateChampionshipDto) throws EntityNotFound {
-        Championship championshipToUpdate = championshipRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFound("Championship not found with ID: " + id));
+        Championship championshipToUpdate = getById(id);
 
         validateChampionshipUniqueName(updateChampionshipDto.getName(), id);
 
@@ -61,8 +60,7 @@ public class ChampionshipService {
     }
 
     public void deleteChampionship(Integer id) throws EntityNotFound {
-        Championship championshipToDelete = championshipRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFound("Championship not found with ID: " + id));
+        Championship championshipToDelete = getById(id);
         try {
             // Attempt to delete the championship
             championshipRepository.delete(championshipToDelete);
@@ -70,5 +68,9 @@ public class ChampionshipService {
             // Handle the case where the championship is referenced by other entities
             throw new DataIntegrityViolationException("Cannot delete championship with ID: " + id + " as it is referenced by other entities.");
         }
+    }
+
+    public ChampionshipDto getChampionshipById(Integer id) throws EntityNotFound {
+        return ChampionshipMapper.toDto(getById(id));
     }
 }

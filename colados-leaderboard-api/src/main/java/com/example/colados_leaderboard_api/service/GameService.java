@@ -43,14 +43,11 @@ public class GameService {
 
     public void registerGame(GameDto gameDto, MultipartFile file) throws Exception {
         // Validate championship exists
-        Optional<Championship> championship = championshipService.getById(gameDto.getChampionshipId());
-        if (championship.isEmpty()) {
-            throw new EntityNotFound("Championship not found with ID: " + gameDto.getChampionshipId());
-        }
+        Championship championship = championshipService.getById(gameDto.getChampionshipId());
 
         // Register game played
         Game game = new Game();
-        game.setChampionship(championship.get());
+        game.setChampionship(championship);
         game.setStatusForEdition(StatusForEdition.OPEN);
         this.gameRepository.save(game);
 

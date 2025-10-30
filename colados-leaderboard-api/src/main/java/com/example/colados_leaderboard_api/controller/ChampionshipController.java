@@ -38,4 +38,10 @@ public class ChampionshipController {
         championshipService.deleteChampionship(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ChampionshipDto> getChampionshipById(@PathVariable Integer id) throws EntityNotFound {
+        ChampionshipDto championshipDto = championshipService.getChampionshipById(id);
+        return ResponseEntity.ok(championshipDto);
+    }
 }
