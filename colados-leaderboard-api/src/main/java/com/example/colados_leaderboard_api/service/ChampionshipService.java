@@ -3,10 +3,10 @@ package com.example.colados_leaderboard_api.service;
 import com.example.colados_leaderboard_api.dto.ChampionshipDto;
 import com.example.colados_leaderboard_api.dto.CreateChampionshipDto;
 import com.example.colados_leaderboard_api.entity.Championship;
+import com.example.colados_leaderboard_api.exceptions.CustomDataIntegrityViolationException;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.mapper.ChampionshipMapper;
 import com.example.colados_leaderboard_api.repository.ChampionshipRepository;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +26,7 @@ public class ChampionshipService {
         return championshipRepository.findById(id).orElseThrow(() -> new EntityNotFound("Championship not found with ID: " + id));
     }
 
-    public ChampionshipDto createChampionship(CreateChampionshipDto createChampionshipDto) {
+    public ChampionshipDto createChampionship(CreateChampionshipDto createChampionshipDto) throws CustomDataIntegrityViolationException {
         ensureChampionshipNameIsUnique(createChampionshipDto.getName(), null);
 
         Championship championship = new Championship();
@@ -38,7 +38,7 @@ public class ChampionshipService {
         return ChampionshipMapper.toDto(createdChampionship);
     }
 
-    public void updateChampionship(Integer id, CreateChampionshipDto updateChampionshipDto) throws EntityNotFound {
+    public void updateChampionship(Integer id, CreateChampionshipDto updateChampionshipDto) throws EntityNotFound, CustomDataIntegrityViolationException {
         Championship championshipToUpdate = getById(id);
 
         ensureChampionshipNameIsUnique(updateChampionshipDto.getName(), id);
@@ -49,21 +49,22 @@ public class ChampionshipService {
         championshipRepository.save(championshipToUpdate);
     }
 
-    private void ensureChampionshipNameIsUnique(String name, Integer currentChampionshipId) {
+    private void ensureChampionshipNameIsUnique(String name, Integer currentChampionshipId) throws CustomDataIntegrityViolationException {
         Optional<Championship> existing = championshipRepository.findByName(name);
         if (existing.isPresent() && !Objects.equals(existing.get().getId(), currentChampionshipId)) {
-            throw new DataIntegrityViolationException("Championship with name '" + name + "' already exists.");
+            throw new CustomDataIntegrityViolationException("Championship with name '" + name + "' already exists.");
         }
     }
 
-    public void deleteChampionship(Integer id) throws EntityNotFound {
+    public void deleteChampionship(Integer id, Boolean force) throws Exception {
         Championship championshipToDelete = getById(id);
-        try {
-            // Attempt to delete the championship
+
+        if (championshipToDelete.getGames().isEmpty() || Boolean.TRUE.equals(force)) {
+            // no children, safe to delete or forced delete
             championshipRepository.delete(championshipToDelete);
-        } catch (DataIntegrityViolationException e) {
-            // Handle the case where the championship is referenced by other entities
-            throw new DataIntegrityViolationException("Cannot delete championship with ID: " + id + " as it is referenced by other entities.");
+        } else {
+            throw new CustomDataIntegrityViolationException(
+                    "Cannot delete championship with ID: " + id + " as it has associated games. Use force delete to remove it along with its games.");
         }
     }
 

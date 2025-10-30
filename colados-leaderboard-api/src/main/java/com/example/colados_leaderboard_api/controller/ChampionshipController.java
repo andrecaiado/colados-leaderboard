@@ -2,6 +2,7 @@ package com.example.colados_leaderboard_api.controller;
 
 import com.example.colados_leaderboard_api.dto.ChampionshipDto;
 import com.example.colados_leaderboard_api.dto.CreateChampionshipDto;
+import com.example.colados_leaderboard_api.exceptions.CustomDataIntegrityViolationException;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.service.ChampionshipService;
 import jakarta.validation.Valid;
@@ -20,7 +21,7 @@ public class ChampionshipController {
     }
 
     @PostMapping()
-    public ResponseEntity<ChampionshipDto> createChampionship(@Valid @RequestBody CreateChampionshipDto createChampionshipDto) {
+    public ResponseEntity<ChampionshipDto> createChampionship(@Valid @RequestBody CreateChampionshipDto createChampionshipDto) throws CustomDataIntegrityViolationException {
         return new ResponseEntity<>(
                 championshipService.createChampionship(createChampionshipDto),
                 HttpStatus.CREATED
@@ -28,14 +29,14 @@ public class ChampionshipController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateChampionship(@PathVariable Integer id, @Valid @RequestBody CreateChampionshipDto updateChampionshipDto) throws EntityNotFound {
+    public ResponseEntity<Void> updateChampionship(@PathVariable Integer id, @Valid @RequestBody CreateChampionshipDto updateChampionshipDto) throws EntityNotFound, CustomDataIntegrityViolationException {
         championshipService.updateChampionship(id, updateChampionshipDto);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteChampionship(@PathVariable Integer id) throws EntityNotFound {
-        championshipService.deleteChampionship(id);
+    public ResponseEntity<Void> deleteChampionship(@PathVariable Integer id, @RequestParam(name = "force", defaultValue = "false") boolean force) throws Exception {
+        championshipService.deleteChampionship(id, force);
         return ResponseEntity.noContent().build();
     }
 

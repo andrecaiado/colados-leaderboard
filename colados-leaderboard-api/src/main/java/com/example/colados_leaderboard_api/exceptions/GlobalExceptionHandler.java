@@ -1,6 +1,5 @@
 package com.example.colados_leaderboard_api.exceptions;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -9,8 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorMessage> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+    @ExceptionHandler(CustomDataIntegrityViolationException.class)
+    public ResponseEntity<ErrorMessage> handleCustomDataIntegrityViolationException(CustomDataIntegrityViolationException ex) {
         ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.CONFLICT.value(),
                 new java.util.Date(),
