@@ -44,4 +44,10 @@ public class ChampionshipController {
         ChampionshipDto championshipDto = championshipService.getChampionshipById(id);
         return ResponseEntity.ok(championshipDto);
     }
+
+    @GetMapping()
+    public ResponseEntity<Iterable<ChampionshipDto>> getAllChampionships() {
+        Iterable<ChampionshipDto> championships = championshipService.getAllChampionships();
+        return ResponseEntity.ok(championships);
+    }
 }

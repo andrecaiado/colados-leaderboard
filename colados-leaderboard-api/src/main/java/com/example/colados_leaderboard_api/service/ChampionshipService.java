@@ -7,6 +7,7 @@ import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.mapper.ChampionshipMapper;
 import com.example.colados_leaderboard_api.repository.ChampionshipRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -68,5 +69,10 @@ public class ChampionshipService {
 
     public ChampionshipDto getChampionshipById(Integer id) throws EntityNotFound {
         return ChampionshipMapper.toDto(getById(id));
+    }
+
+    public Iterable<ChampionshipDto> getAllChampionships() {
+        Iterable<Championship> championships = championshipRepository.findAll(Sort.by("name"));
+        return ChampionshipMapper.toDtoList(championships);
     }
 }
