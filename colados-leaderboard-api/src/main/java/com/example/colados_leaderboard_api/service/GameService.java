@@ -8,6 +8,7 @@ import com.example.colados_leaderboard_api.entity.Game;
 import com.example.colados_leaderboard_api.enums.ImageProcessingStatus;
 import com.example.colados_leaderboard_api.enums.StatusForEdition;
 import com.example.colados_leaderboard_api.event.GameResultsCreatedFromProcessedMsg;
+import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.mapper.ImageProcessedMsgMapper;
 import com.example.colados_leaderboard_api.producer.MessageProducer;
 import com.example.colados_leaderboard_api.repository.GameRepository;
@@ -44,7 +45,7 @@ public class GameService {
         // Validate championship exists
         Optional<Championship> championship = championshipService.findById(gameDto.getChampionshipId());
         if (championship.isEmpty()) {
-            throw new Exception("Championship not found with ID: " + gameDto.getChampionshipId());
+            throw new EntityNotFound("Championship not found with ID: " + gameDto.getChampionshipId());
         }
 
         // Register game played
@@ -73,38 +74,34 @@ public class GameService {
     public void updateGameFromProcessedMsg(ImageProcessedMsg imageProcessedMsg) throws Exception {
         Optional<Game> gameOpt = this.getGameByScoreboardImageName(imageProcessedMsg.getFile_name());
         if (gameOpt.isEmpty()) {
-            throw new Exception("Game not found with image name: " + imageProcessedMsg.getFile_name());
+            throw new EntityNotFound("Game not found with image name: " + imageProcessedMsg.getFile_name());
         }
 
         Game game = gameOpt.get();
         try {
             game.setImageProcessingStatus(ImageProcessingStatus.valueOf(imageProcessedMsg.getStatus().toUpperCase()));
         } catch (Exception e) {
-            System.err.println("Failed to set image processing status: " + e.getMessage());
-            return;
+            throw new IllegalArgumentException("Invalid image processing status: " + imageProcessedMsg.getStatus());
         }
         if (game.getImageProcessingStatus() == ImageProcessingStatus.PROCESSED) {
             game.setGameResults(imageProcessedMsgMapper.mapToGameResults(imageProcessedMsg.getResults(), game));
         }
         this.gameRepository.save(game);
-        System.out.println("Game updated with image processing status: " + game.getImageProcessingStatus());
 
         // If the image was processed successfully, publish an event
         if (game.getImageProcessingStatus() == ImageProcessingStatus.PROCESSED) {
             this.publisher.publishEvent(new GameResultsCreatedFromProcessedMsg(this, game.getId()));
         }
-        System.out.println("End of updateGameFromProcessedMsg");
     }
 
     private Optional<Game> getGameByScoreboardImageName(String imageName) {
         return this.gameRepository.findByScoreboardImageName(imageName);
     }
 
-    public void updateGameResultsPlayers(Integer gameId) {
+    public void updateGameResultsPlayers(Integer gameId) throws EntityNotFound {
         Optional<Game> gameOpt = this.gameRepository.findById(gameId);
         if (gameOpt.isEmpty()) {
-            System.err.println("Game not found with ID: " + gameId);
-            return;
+            throw new EntityNotFound("Game not found with ID: " + gameId);
         }
 
         Game game = gameOpt.get();

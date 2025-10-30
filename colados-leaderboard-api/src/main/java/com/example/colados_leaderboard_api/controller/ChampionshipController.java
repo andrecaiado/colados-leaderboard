@@ -2,7 +2,6 @@ package com.example.colados_leaderboard_api.controller;
 
 import com.example.colados_leaderboard_api.dto.ChampionshipDto;
 import com.example.colados_leaderboard_api.dto.CreateChampionshipDto;
-import com.example.colados_leaderboard_api.exceptions.ChampionshipNameAlreadyExists;
 import com.example.colados_leaderboard_api.service.ChampionshipService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,7 @@ public class ChampionshipController {
     }
 
     @PostMapping()
-    public ResponseEntity<ChampionshipDto> createChampionship(@Valid @RequestBody CreateChampionshipDto createChampionshipDto) throws ChampionshipNameAlreadyExists {
+    public ResponseEntity<ChampionshipDto> createChampionship(@Valid @RequestBody CreateChampionshipDto createChampionshipDto) {
         return new ResponseEntity<>(
                 championshipService.createChampionship(createChampionshipDto),
                 HttpStatus.CREATED
