@@ -1,6 +1,7 @@
 package com.example.colados_leaderboard_api.controller;
 
 import com.example.colados_leaderboard_api.dto.GameDto;
+import com.example.colados_leaderboard_api.dto.GameResultDto;
 import com.example.colados_leaderboard_api.dto.RegisterGameDto;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.service.GameService;
@@ -41,5 +42,11 @@ public class GameController {
     public ResponseEntity<Iterable<GameDto>> getAllGames() {
         Iterable<GameDto> games = gameService.getAllGames();
         return ResponseEntity.ok(games);
+    }
+
+    @GetMapping("/{id}/results")
+    public ResponseEntity<Iterable<GameResultDto>> getGameResults(@PathVariable Integer id) throws EntityNotFound {
+        Iterable<GameResultDto> results = gameService.getGameResults(id);
+        return ResponseEntity.ok(results);
     }
 }

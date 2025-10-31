@@ -1,16 +1,15 @@
 package com.example.colados_leaderboard_api.service;
 
-import com.example.colados_leaderboard_api.dto.GameDto;
-import com.example.colados_leaderboard_api.dto.RegisterGameDto;
-import com.example.colados_leaderboard_api.dto.ImageProcessedMsg;
-import com.example.colados_leaderboard_api.dto.ImageSubmittedMsg;
+import com.example.colados_leaderboard_api.dto.*;
 import com.example.colados_leaderboard_api.entity.Championship;
 import com.example.colados_leaderboard_api.entity.Game;
+import com.example.colados_leaderboard_api.entity.GameResult;
 import com.example.colados_leaderboard_api.enums.ImageProcessingStatus;
 import com.example.colados_leaderboard_api.enums.StatusForEdition;
 import com.example.colados_leaderboard_api.event.GameResultsCreatedFromProcessedMsg;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.mapper.GameMapper;
+import com.example.colados_leaderboard_api.mapper.GameResultMapper;
 import com.example.colados_leaderboard_api.mapper.ImageProcessedMsgMapper;
 import com.example.colados_leaderboard_api.producer.MessageProducer;
 import com.example.colados_leaderboard_api.repository.GameRepository;
@@ -21,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -132,5 +133,12 @@ public class GameService {
     public Iterable<GameDto> getAllGames() {
         Iterable<Game> games = this.gameRepository.findAll(Sort.by(Sort.Direction.DESC, "playedAt"));
         return GameMapper.toDtoList(games);
+    }
+
+    public Iterable<GameResultDto> getGameResults(Integer gameId) throws EntityNotFound {
+        Game game = this.getGameById(gameId);
+        List<GameResult> gameResults = game.getGameResults();
+        gameResults.sort(Comparator.comparingInt(dto -> dto.getPosition() != null ? dto.getPosition() : 0));
+        return GameResultMapper.toDtoList(gameResults);
     }
 }
