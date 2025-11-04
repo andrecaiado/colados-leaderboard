@@ -4,10 +4,12 @@ import com.example.colados_leaderboard_api.dto.*;
 import com.example.colados_leaderboard_api.entity.Championship;
 import com.example.colados_leaderboard_api.entity.Game;
 import com.example.colados_leaderboard_api.entity.GameResult;
+import com.example.colados_leaderboard_api.enums.GameResultsStatus;
 import com.example.colados_leaderboard_api.enums.ImageProcessingStatus;
 import com.example.colados_leaderboard_api.enums.StatusForEdition;
 import com.example.colados_leaderboard_api.event.GameResultsCreatedFromProcessedMsg;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
+import com.example.colados_leaderboard_api.exceptions.IncompleteGameResultsException;
 import com.example.colados_leaderboard_api.mapper.GameMapper;
 import com.example.colados_leaderboard_api.mapper.GameResultMapper;
 import com.example.colados_leaderboard_api.mapper.ImageProcessedMsgMapper;
@@ -140,5 +142,23 @@ public class GameService {
         List<GameResult> gameResults = game.getGameResults();
         gameResults.sort(Comparator.comparingInt(dto -> dto.getPosition() != null ? dto.getPosition() : 0));
         return GameResultMapper.toDtoList(gameResults);
+    }
+
+    public void updateGameResultsStatus(Integer id, PatchGameResultsStatus patchGameResultsStatus) throws EntityNotFound, IncompleteGameResultsException {
+        Game game = getGameById(id);
+        if (patchGameResultsStatus.getGameResultsStatus() == GameResultsStatus.ACCEPTED) {
+            // Ensure all game results are complete before accepting
+            validateGameResultsForAcceptance(game);
+        }
+        game.setGameResultsStatus(patchGameResultsStatus.getGameResultsStatus());
+        this.gameRepository.save(game);
+    }
+
+    private static void validateGameResultsForAcceptance(Game game) throws IncompleteGameResultsException {
+        for (GameResult result : game.getGameResults()) {
+            if (result.getGame() == null || result.getPlayer() == null || result.getPosition() == null || result.getScore() == null || result.getCharacterName() == null) {
+                throw new IncompleteGameResultsException("Cannot accept game results with incomplete data.");
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.colados_leaderboard_api.entity;
 
+import com.example.colados_leaderboard_api.enums.GameResultsStatus;
 import com.example.colados_leaderboard_api.enums.ImageProcessingStatus;
 import com.example.colados_leaderboard_api.enums.StatusForEdition;
 import jakarta.annotation.Nullable;
@@ -42,4 +43,7 @@ public class Game {
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<GameResult> gameResults = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    private GameResultsStatus gameResultsStatus = GameResultsStatus.PENDING_ACCEPTANCE;
 }

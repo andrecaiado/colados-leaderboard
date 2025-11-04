@@ -51,4 +51,15 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(IncompleteGameResultsException.class)
+    public ResponseEntity<ErrorMessage> handleIncompleteGameResultsException(IncompleteGameResultsException ex) {
+        ErrorMessage errorMessage = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new java.util.Date(),
+                ex.getMessage(),
+                "Incomplete game results"
+        );
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+    }
 }
