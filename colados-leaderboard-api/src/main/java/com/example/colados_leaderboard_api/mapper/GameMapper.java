@@ -22,6 +22,9 @@ public final class GameMapper {
         dto.setStatusForEdition(game.getStatusForEdition());
         dto.setScoreboardImageName(game.getScoreboardImageName());
         dto.setImageProcessingStatus(game.getImageProcessingStatus());
+        dto.setGameResultsStatus(game.getGameResultsStatus());
+        dto.setGameResultsAcceptedBy(game.getGameResultsAcceptedBy());
+        dto.setGameResultsInputMethod(game.getGameResultsInputMethod());
         return dto;
     }
 

@@ -1,6 +1,8 @@
 package com.example.colados_leaderboard_api.dto;
 
+import com.example.colados_leaderboard_api.enums.GameResultsStatus;
 import com.example.colados_leaderboard_api.enums.ImageProcessingStatus;
+import com.example.colados_leaderboard_api.enums.GameResultsInputMethod;
 import com.example.colados_leaderboard_api.enums.StatusForEdition;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,4 +21,7 @@ public class GameDto {
     private StatusForEdition statusForEdition;
     private String scoreboardImageName;
     private ImageProcessingStatus imageProcessingStatus;
+    private GameResultsStatus gameResultsStatus;
+    private Integer gameResultsAcceptedBy;
+    private GameResultsInputMethod gameResultsInputMethod;
 }

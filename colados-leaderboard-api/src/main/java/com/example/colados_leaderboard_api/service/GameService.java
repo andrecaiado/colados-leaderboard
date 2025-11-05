@@ -6,6 +6,7 @@ import com.example.colados_leaderboard_api.entity.Game;
 import com.example.colados_leaderboard_api.entity.GameResult;
 import com.example.colados_leaderboard_api.enums.GameResultsStatus;
 import com.example.colados_leaderboard_api.enums.ImageProcessingStatus;
+import com.example.colados_leaderboard_api.enums.GameResultsInputMethod;
 import com.example.colados_leaderboard_api.enums.StatusForEdition;
 import com.example.colados_leaderboard_api.event.GameResultsCreatedFromProcessedMsg;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
@@ -89,6 +90,7 @@ public class GameService {
         if (game.getImageProcessingStatus() == ImageProcessingStatus.PROCESSED) {
             game.setGameResults(imageProcessedMsgMapper.mapToGameResults(imageProcessedMsg.getResults(), game));
         }
+        game.setGameResultsInputMethod(GameResultsInputMethod.IMAGE_PROCESSING);
         this.gameRepository.save(game);
 
         // If the image was processed successfully, publish an event

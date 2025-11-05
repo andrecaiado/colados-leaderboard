@@ -2,6 +2,7 @@ package com.example.colados_leaderboard_api.entity;
 
 import com.example.colados_leaderboard_api.enums.GameResultsStatus;
 import com.example.colados_leaderboard_api.enums.ImageProcessingStatus;
+import com.example.colados_leaderboard_api.enums.GameResultsInputMethod;
 import com.example.colados_leaderboard_api.enums.StatusForEdition;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -46,4 +47,9 @@ public class Game {
 
     @Enumerated(EnumType.STRING)
     private GameResultsStatus gameResultsStatus = GameResultsStatus.PENDING_ACCEPTANCE;
+
+    private Integer gameResultsAcceptedBy;
+
+    @Enumerated(EnumType.STRING)
+    private GameResultsInputMethod gameResultsInputMethod;
 }
