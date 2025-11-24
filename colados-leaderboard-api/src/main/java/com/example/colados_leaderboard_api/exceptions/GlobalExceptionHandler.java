@@ -62,4 +62,15 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(IllegalGameStateException.class)
+    public ResponseEntity<ErrorMessage> handleIllegalGameStateException(IllegalGameStateException ex) {
+        ErrorMessage errorMessage = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new java.util.Date(),
+                ex.getMessage(),
+                "Illegal game state"
+        );
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+    }
 }

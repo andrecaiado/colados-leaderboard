@@ -12,6 +12,7 @@ import com.example.colados_leaderboard_api.enums.GameResultsInputMethod;
 import com.example.colados_leaderboard_api.enums.StatusForEdition;
 import com.example.colados_leaderboard_api.event.GameResultsCreatedFromProcessedMsg;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
+import com.example.colados_leaderboard_api.exceptions.IllegalGameStateException;
 import com.example.colados_leaderboard_api.exceptions.IncompleteGameResultsException;
 import com.example.colados_leaderboard_api.mapper.GameMapper;
 import com.example.colados_leaderboard_api.mapper.GameResultMapper;
@@ -68,6 +69,7 @@ public class GameService {
                 String newFileName = this.fileService.uploadFileToStorage(file);
 
                 game.setScoreboardImageName(newFileName);
+                game.setImageProcessingStatus(ImageProcessingStatus.SUBMITTED);
                 this.gameRepository.save(game);
 
                 this.messageProducer.sendMessage(new ImageSubmittedMsg(newFileName));
@@ -166,8 +168,13 @@ public class GameService {
         }
     }
 
-    public void updateGame(Integer id, UpdateGameDto updateGameDto) throws EntityNotFound {
+    public void updateGame(Integer id, UpdateGameDto updateGameDto) throws EntityNotFound, IllegalGameStateException {
         Game game = this.getGameById(id);
+
+        // If ImageProcessingStatus is SUBMITTED, do not allow updates
+        if (game.getImageProcessingStatus() == ImageProcessingStatus.SUBMITTED) {
+            throw new IllegalGameStateException("Cannot update game results while image processing is not finished.");
+        }
 
         // Update basic game info
         Championship championship = championshipService.getById(updateGameDto.getChampionshipId());

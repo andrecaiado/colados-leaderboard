@@ -2,6 +2,7 @@ package com.example.colados_leaderboard_api.controller;
 
 import com.example.colados_leaderboard_api.dto.*;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
+import com.example.colados_leaderboard_api.exceptions.IllegalGameStateException;
 import com.example.colados_leaderboard_api.exceptions.IncompleteGameResultsException;
 import com.example.colados_leaderboard_api.service.GameService;
 import jakarta.validation.Valid;
@@ -57,7 +58,7 @@ public class GameController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateGame(@PathVariable Integer id, @Valid @RequestBody UpdateGameDto updateGameDto) throws EntityNotFound {
+    public ResponseEntity<Void> updateGame(@PathVariable Integer id, @Valid @RequestBody UpdateGameDto updateGameDto) throws EntityNotFound, IllegalGameStateException {
         gameService.updateGame(id, updateGameDto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
