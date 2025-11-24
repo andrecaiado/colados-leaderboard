@@ -1,9 +1,6 @@
 package com.example.colados_leaderboard_api.controller;
 
-import com.example.colados_leaderboard_api.dto.GameDto;
-import com.example.colados_leaderboard_api.dto.GameResultDto;
-import com.example.colados_leaderboard_api.dto.PatchGameResultsStatus;
-import com.example.colados_leaderboard_api.dto.RegisterGameDto;
+import com.example.colados_leaderboard_api.dto.*;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.exceptions.IncompleteGameResultsException;
 import com.example.colados_leaderboard_api.service.GameService;
@@ -56,6 +53,12 @@ public class GameController {
     @PatchMapping("/{id}/game-results-status")
     public ResponseEntity<Void> updateGameResultsStatus(@PathVariable Integer id, @Valid @RequestBody PatchGameResultsStatus patchGameResultsStatus) throws EntityNotFound, IncompleteGameResultsException {
         gameService.updateGameResultsStatus(id, patchGameResultsStatus);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateGame(@PathVariable Integer id, @Valid @RequestBody UpdateGameDto updateGameDto) throws EntityNotFound {
+        gameService.updateGame(id, updateGameDto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

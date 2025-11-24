@@ -4,13 +4,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.Instant;
-
 @Setter
 @Getter
 @NoArgsConstructor
-public class RegisterGameDto {
-    private Integer championshipId;
-
-    private Instant playedAt = Instant.now();
+public class UpdateGameResultDto {
+    private Integer userId;
+    private Integer playerId;
+    private Integer position;
+    private Integer score;
 }

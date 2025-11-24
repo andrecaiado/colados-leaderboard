@@ -1,9 +1,11 @@
 package com.example.colados_leaderboard_api.service;
 
+import com.example.colados_leaderboard_api.configuration.AppConstants;
 import com.example.colados_leaderboard_api.dto.*;
 import com.example.colados_leaderboard_api.entity.Championship;
 import com.example.colados_leaderboard_api.entity.Game;
 import com.example.colados_leaderboard_api.entity.GameResult;
+import com.example.colados_leaderboard_api.entity.Player;
 import com.example.colados_leaderboard_api.enums.GameResultsStatus;
 import com.example.colados_leaderboard_api.enums.ImageProcessingStatus;
 import com.example.colados_leaderboard_api.enums.GameResultsInputMethod;
@@ -37,8 +39,9 @@ public class GameService {
     private final ApplicationEventPublisher publisher;
     private final ImageProcessedMsgMapper imageProcessedMsgMapper;
     private final PlayerService playerService;
+    private final AppConstants appConstants;
 
-    public GameService(FileService fileService, ChampionshipService championshipService, GameRepository gameRepository, MessageProducer messageProducer, ApplicationEventPublisher publisher, ImageProcessedMsgMapper imageProcessedMsgMapper, PlayerService playerService) {
+    public GameService(FileService fileService, ChampionshipService championshipService, GameRepository gameRepository, MessageProducer messageProducer, ApplicationEventPublisher publisher, ImageProcessedMsgMapper imageProcessedMsgMapper, PlayerService playerService, AppConstants appConstants) {
         this.fileService = fileService;
         this.championshipService = championshipService;
         this.gameRepository = gameRepository;
@@ -46,6 +49,7 @@ public class GameService {
         this.publisher = publisher;
         this.imageProcessedMsgMapper = imageProcessedMsgMapper;
         this.playerService = playerService;
+        this.appConstants = appConstants;
     }
 
     public void registerGame(RegisterGameDto registerGameDto, MultipartFile file) throws Exception {
@@ -110,14 +114,12 @@ public class GameService {
         }
 
         Game game = gameOpt.get();
-        game.getGameResults().forEach(gameResult -> {
-            gameResult.setPlayer(
-                playerService.getPlayerByCharacter(
-                        gameResult.getCharacterName(),
-                        gameResult.getGame().getPlayedAt()
-                )
-            );
-        }
+        game.getGameResults().forEach(gameResult -> gameResult.setPlayer(
+            playerService.getByCharacter(
+                    gameResult.getCharacterName(),
+                    gameResult.getGame().getPlayedAt()
+            )
+        )
         );
         this.gameRepository.save(game);
     }
@@ -162,5 +164,47 @@ public class GameService {
                 throw new IncompleteGameResultsException("Cannot accept game results with incomplete data.");
             }
         }
+    }
+
+    public void updateGame(Integer id, UpdateGameDto updateGameDto) throws EntityNotFound {
+        Game game = this.getGameById(id);
+
+        // Update basic game info
+        Championship championship = championshipService.getById(updateGameDto.getChampionshipId());
+        game.setChampionship(championship);
+        game.setPlayedAt(updateGameDto.getPlayedAt());
+
+        // Clear existing results
+        game.getGameResults().clear();
+
+        // Add updated results
+        for (UpdateGameResultDto resultDto : updateGameDto.getGameResults()) {
+            GameResult gameResult = new GameResult();
+            gameResult.setGame(game);
+            Player player = null;
+            if (resultDto.getPlayerId() == null && resultDto.getUserId() != null) {
+                // If playerId is not provided, but userId is, try to fetch player by userId and playedAt
+                player = playerService.getByUserId(
+                                resultDto.getUserId(),
+                                game.getPlayedAt()
+                        );
+            } else if (resultDto.getPlayerId() != null) {
+                // If playerId is provided, fetch player by playerId
+                player = playerService.getById(resultDto.getPlayerId());
+            }
+            gameResult.setPlayer(player);
+            gameResult.setCharacterName(
+                    player != null ? player.getCharacterName() : null
+            );
+            gameResult.setPosition(resultDto.getPosition());
+            gameResult.setScore(resultDto.getScore());
+            gameResult.setMaxScoreAchieved(resultDto.getScore() != null && resultDto.getScore() >= appConstants.getGameMaxScore());
+            game.getGameResults().add(gameResult);
+        }
+
+        // Update game result input method
+        game.setGameResultsInputMethod(GameResultsInputMethod.MANUAL);
+
+        this.gameRepository.save(game);
     }
 }

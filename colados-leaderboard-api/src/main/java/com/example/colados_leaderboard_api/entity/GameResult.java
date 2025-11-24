@@ -1,6 +1,5 @@
 package com.example.colados_leaderboard_api.entity;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +20,6 @@ public class GameResult {
     @JoinColumn(name = "game_id", nullable = false)
     private Game game;
 
-    @Nullable
     @ManyToOne
     @JoinColumn(name = "player_id")
     private Player player;

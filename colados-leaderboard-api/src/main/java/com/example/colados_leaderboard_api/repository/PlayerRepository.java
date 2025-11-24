@@ -17,4 +17,11 @@ public interface PlayerRepository extends JpaRepository<Player, Integer> {
             "ORDER BY p.createdAt DESC " +
             "LIMIT 1")
     Optional<Player> findPlayerByCharacterAtOrBeforeDate(String character, Instant createdAt);
+
+    @Query("SELECT p FROM Player p " +
+            "WHERE p.userId = :userId " +
+            "AND p.createdAt <= :createdAt " +
+            "ORDER BY p.createdAt DESC " +
+            "LIMIT 1")
+    Optional<Player> findPlayerByUserIdAtOrBeforeDate(Integer userId, Instant createdAt);
 }

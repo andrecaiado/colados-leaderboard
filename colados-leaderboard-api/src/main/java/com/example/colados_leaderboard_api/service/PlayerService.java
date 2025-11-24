@@ -14,11 +14,23 @@ public class PlayerService {
         this.playerRepository = playerRepository;
     }
 
-    public Player getPlayerByCharacter(String character, Instant createdAt) {
+    public Player getByCharacter(String character, Instant createdAt) {
         if (createdAt == null) {
             createdAt = Instant.now();
         }
         return playerRepository.findPlayerByCharacterAtOrBeforeDate(character, createdAt)
+                .orElse(null);
+    }
+
+    public Player getById(Integer playerId) {
+        return playerRepository.findById(playerId).orElse(null);
+    }
+
+    public Player getByUserId(Integer userId, Instant createdAt) {
+        if (createdAt == null) {
+            createdAt = Instant.now();
+        }
+        return playerRepository.findPlayerByUserIdAtOrBeforeDate(userId, createdAt)
                 .orElse(null);
     }
 }

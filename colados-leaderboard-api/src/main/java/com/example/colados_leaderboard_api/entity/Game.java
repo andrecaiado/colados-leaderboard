@@ -4,7 +4,6 @@ import com.example.colados_leaderboard_api.enums.GameResultsStatus;
 import com.example.colados_leaderboard_api.enums.ImageProcessingStatus;
 import com.example.colados_leaderboard_api.enums.GameResultsInputMethod;
 import com.example.colados_leaderboard_api.enums.StatusForEdition;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,10 +34,8 @@ public class Game {
     @Enumerated(EnumType.STRING)
     private StatusForEdition statusForEdition = StatusForEdition.OPEN;
 
-    @Nullable
     private String scoreboardImageName;
 
-    @Nullable
     @Enumerated(EnumType.STRING)
     private ImageProcessingStatus imageProcessingStatus = ImageProcessingStatus.NONE;
 
