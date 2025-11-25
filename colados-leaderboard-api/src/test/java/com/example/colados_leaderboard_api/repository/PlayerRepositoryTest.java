@@ -1,20 +1,20 @@
 package com.example.colados_leaderboard_api.repository;
 
 import com.example.colados_leaderboard_api.entity.Player;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.stream.Stream;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Sql(scripts = "/test-data/player-data.sql")
 public class PlayerRepositoryTest {
 
@@ -27,6 +27,11 @@ public class PlayerRepositoryTest {
                 Arguments.of("Toadette", Instant.parse("2025-04-10T09:02:00Z"), 102),
                 Arguments.of("Mario", Instant.parse("2025-06-05T11:02:00Z"), 101)
         );
+    }
+
+    @BeforeAll
+    static void setUpTimezone() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 
     @ParameterizedTest

@@ -1,6 +1,8 @@
 spring:
   application:
     name: colados-leaderboard-api
+  flyway:
+    enabled: true
   config:
     import: optional:file:.env[.properties]
 
@@ -11,8 +13,6 @@ spring:
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
-    hibernate:
-      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
