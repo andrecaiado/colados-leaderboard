@@ -4,6 +4,7 @@ import com.example.colados_leaderboard_api.dto.*;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.exceptions.IllegalGameStateException;
 import com.example.colados_leaderboard_api.exceptions.IncompleteGameResultsException;
+import com.example.colados_leaderboard_api.exceptions.InvalidDataInGameResultsException;
 import com.example.colados_leaderboard_api.service.GameService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -52,7 +53,7 @@ public class GameController {
     }
 
     @PatchMapping("/{id}/game-results-status")
-    public ResponseEntity<Void> updateGameResultsStatus(@PathVariable Integer id, @Valid @RequestBody PatchGameResultsStatus patchGameResultsStatus) throws EntityNotFound, IncompleteGameResultsException {
+    public ResponseEntity<Void> updateGameResultsStatus(@PathVariable Integer id, @Valid @RequestBody PatchGameResultsStatus patchGameResultsStatus) throws EntityNotFound, IncompleteGameResultsException, InvalidDataInGameResultsException {
         gameService.updateGameResultsStatus(id, patchGameResultsStatus);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

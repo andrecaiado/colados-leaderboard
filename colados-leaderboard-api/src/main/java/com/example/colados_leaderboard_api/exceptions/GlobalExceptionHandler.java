@@ -73,4 +73,15 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(InvalidDataInGameResultsException.class)
+    public ResponseEntity<ErrorMessage> handleNonUniqueUserPlayerInGameResultsException(InvalidDataInGameResultsException ex) {
+        ErrorMessage errorMessage = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new java.util.Date(),
+                ex.getMessage(),
+                "Invalid data in game results"
+        );
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+    }
 }

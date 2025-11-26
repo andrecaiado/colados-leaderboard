@@ -14,6 +14,7 @@ import com.example.colados_leaderboard_api.event.GameResultsCreatedFromProcessed
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.exceptions.IllegalGameStateException;
 import com.example.colados_leaderboard_api.exceptions.IncompleteGameResultsException;
+import com.example.colados_leaderboard_api.exceptions.InvalidDataInGameResultsException;
 import com.example.colados_leaderboard_api.mapper.GameMapper;
 import com.example.colados_leaderboard_api.mapper.GameResultMapper;
 import com.example.colados_leaderboard_api.mapper.ImageProcessedMsgMapper;
@@ -26,9 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class GameService {
@@ -150,20 +149,33 @@ public class GameService {
         return GameResultMapper.toDtoList(gameResults);
     }
 
-    public void updateGameResultsStatus(Integer id, PatchGameResultsStatus patchGameResultsStatus) throws EntityNotFound, IncompleteGameResultsException {
+    public void updateGameResultsStatus(Integer id, PatchGameResultsStatus patchGameResultsStatus) throws EntityNotFound, IncompleteGameResultsException, InvalidDataInGameResultsException {
         Game game = getGameById(id);
         if (patchGameResultsStatus.getGameResultsStatus() == GameResultsStatus.ACCEPTED) {
-            // Ensure all game results are complete before accepting
             validateGameResultsForAcceptance(game);
         }
         game.setGameResultsStatus(patchGameResultsStatus.getGameResultsStatus());
         this.gameRepository.save(game);
     }
 
-    private static void validateGameResultsForAcceptance(Game game) throws IncompleteGameResultsException {
-        for (GameResult result : game.getGameResults()) {
+    private static void validateGameResultsForAcceptance(Game game) throws IncompleteGameResultsException, InvalidDataInGameResultsException {
+        verifyGameResultsAreComplete(game.getGameResults());
+        verifyGameResultsHasUniqueUserPlayer(game.getGameResults());
+    }
+
+    private static void verifyGameResultsAreComplete(List<GameResult> gameResults) throws IncompleteGameResultsException {
+        for (GameResult result : gameResults) {
             if (result.getGame() == null || result.getPlayer() == null || result.getPosition() == null || result.getScore() == null || result.getCharacterName() == null) {
-                throw new IncompleteGameResultsException("Cannot accept game results with incomplete data.");
+                throw new IncompleteGameResultsException("Incomplete game result found.");
+            }
+        }
+    }
+
+    private static void verifyGameResultsHasUniqueUserPlayer(List<GameResult> gameResults) throws InvalidDataInGameResultsException {
+        Set<Integer> userIds = new HashSet<>();
+        for (GameResult result : gameResults) {
+            if (!userIds.add(result.getPlayer().getUser().getId())) {
+                throw new InvalidDataInGameResultsException("Duplicate app-user/player found in game results.");
             }
         }
     }
