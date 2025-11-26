@@ -41,7 +41,7 @@ public class PlayerRepositoryTest {
         assert(player.isPresent());
         assert(player.get().getCharacterName().equals(character));
         assert(player.get().getCreatedAt().isBefore(date) || player.get().getCreatedAt().equals(date));
-        assert(player.get().getUserId() == expectedUserId);
+        assert(player.get().getUser().getId() == expectedUserId);
     }
 
     static Stream<Arguments> playerTestArguments2() {
