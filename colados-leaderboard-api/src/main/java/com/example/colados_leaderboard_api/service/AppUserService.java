@@ -1,6 +1,8 @@
 package com.example.colados_leaderboard_api.service;
 
 import com.example.colados_leaderboard_api.dto.AppUserDto;
+import com.example.colados_leaderboard_api.entity.AppUser;
+import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.mapper.AppUserMapper;
 import com.example.colados_leaderboard_api.repository.AppUserRepository;
 import org.springframework.data.domain.Sort;
@@ -16,5 +18,9 @@ public class AppUserService {
 
     public Iterable<AppUserDto> getAll() {
         return AppUserMapper.toDtoList(appUserRepository.findAll(Sort.by("username")));
+    }
+
+    public AppUser getById(Integer userId) throws EntityNotFound {
+        return appUserRepository.findById(userId).orElseThrow(() -> new EntityNotFound("AppUser not found with ID: " + userId));
     }
 }

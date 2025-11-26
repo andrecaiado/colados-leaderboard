@@ -1,11 +1,14 @@
 package com.example.colados_leaderboard_api.repository;
 
+import com.example.colados_leaderboard_api.entity.AppUser;
 import com.example.colados_leaderboard_api.entity.Player;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -24,4 +27,6 @@ public interface PlayerRepository extends JpaRepository<Player, Integer> {
             "ORDER BY p.createdAt DESC " +
             "LIMIT 1")
     Optional<Player> findPlayerByUserIdAtOrBeforeDate(Integer userId, Instant createdAt);
+
+    List<Player> findByUser(AppUser user , Sort sort);
 }
