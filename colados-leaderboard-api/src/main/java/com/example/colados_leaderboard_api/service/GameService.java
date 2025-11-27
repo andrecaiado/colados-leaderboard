@@ -226,4 +226,22 @@ public class GameService {
 
         this.gameRepository.save(game);
     }
+
+    public void updateGameImage(Integer id, MultipartFile file) throws Exception {
+        Game game = this.getGameById(id);
+
+        try {
+            String newFileName = this.fileService.uploadFileToStorage(file);
+
+            game.setScoreboardImageName(newFileName);
+            game.setImageProcessingStatus(ImageProcessingStatus.SUBMITTED);
+            this.gameRepository.save(game);
+
+            this.messageProducer.sendMessage(new ImageSubmittedMsg(newFileName));
+        } catch (IOException e) {
+            throw new Exception("Failed to handle file: " + e.getMessage());
+        } catch (AmqpException e) {
+            throw new Exception("Failed to send message to queue: " + e.getMessage());
+        }
+    }
 }

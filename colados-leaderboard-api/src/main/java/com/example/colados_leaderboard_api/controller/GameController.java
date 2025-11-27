@@ -63,4 +63,14 @@ public class GameController {
         gameService.updateGame(id, updateGameDto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PutMapping("/{id}/image")
+    public ResponseEntity<Void> updateGameImage(@PathVariable Integer id, @RequestParam("file") MultipartFile file) throws Exception {
+        if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
+            throw new IllegalArgumentException("Only image files are allowed.");
+        }
+
+        gameService.updateGameImage(id, file);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
