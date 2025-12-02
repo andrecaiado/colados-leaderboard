@@ -2,6 +2,7 @@ package com.example.colados_leaderboard_api.controller;
 
 import com.example.colados_leaderboard_api.dto.*;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
+import com.example.colados_leaderboard_api.exceptions.IllegalGameStateException;
 import com.example.colados_leaderboard_api.exceptions.IncompleteGameResultsException;
 import com.example.colados_leaderboard_api.exceptions.InvalidDataInGameResultsException;
 import com.example.colados_leaderboard_api.service.GameService;
@@ -58,7 +59,7 @@ public class GameController {
     }
 
     @PatchMapping("/{id}/game-results-status")
-    public ResponseEntity<Void> updateGameResultsStatus(@PathVariable Integer id, @Valid @RequestBody PatchGameResultsStatus patchGameResultsStatus) throws EntityNotFound, IncompleteGameResultsException, InvalidDataInGameResultsException {
+    public ResponseEntity<Void> updateGameResultsStatus(@PathVariable Integer id, @Valid @RequestBody PatchGameResultsStatus patchGameResultsStatus) throws EntityNotFound, IncompleteGameResultsException, InvalidDataInGameResultsException, IllegalGameStateException {
         gameService.updateGameResultsStatus(id, patchGameResultsStatus);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -97,5 +98,12 @@ public class GameController {
         } catch (Exception e) {
             return "application/octet-stream";
         }
+    }
+
+    @PatchMapping("/{id}/status-for-edition")
+    public ResponseEntity<Void> updateStatusForEdition(@PathVariable Integer id, @Valid @RequestBody PatchStatusForEdition patchStatusForEdition) throws EntityNotFound, IllegalGameStateException {
+        gameService.updateStatusForEdition(id, patchStatusForEdition);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

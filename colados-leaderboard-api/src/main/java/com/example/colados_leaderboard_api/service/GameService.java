@@ -142,8 +142,15 @@ public class GameService {
         return GameResultMapper.toDtoList(gameResults);
     }
 
-    public void updateGameResultsStatus(Integer id, PatchGameResultsStatus patchGameResultsStatus) throws EntityNotFound, IncompleteGameResultsException, InvalidDataInGameResultsException {
+    public void updateGameResultsStatus(Integer id, PatchGameResultsStatus patchGameResultsStatus) throws EntityNotFound, IncompleteGameResultsException, InvalidDataInGameResultsException, IllegalGameStateException {
         Game game = getGameById(id);
+
+        // If game is closed, do not allow updates
+        if (game.getStatusForEdition() == StatusForEdition.CLOSED) {
+            throw new IllegalGameStateException("Cannot update game results status for a closed game.");
+        }
+
+        // Validate game results before accepting
         if (patchGameResultsStatus.getGameResultsStatus() == GameResultsStatus.ACCEPTED) {
             validateGameResultsForAcceptance(game);
         }
@@ -175,6 +182,11 @@ public class GameService {
 
     public void updateGame(Integer id, UpdateGameDto updateGameDto, MultipartFile file) throws Exception {
         Game game = this.getGameById(id);
+
+        // If game is closed, do not allow updates
+        if (game.getStatusForEdition() == StatusForEdition.CLOSED) {
+            throw new IllegalGameStateException("Cannot update game results status for a closed game.");
+        }
 
         // If ImageProcessingStatus is SUBMITTED, do not allow updates
         if (game.getImageProcessingStatus() == ImageProcessingStatus.SUBMITTED) {
@@ -225,7 +237,8 @@ public class GameService {
     }
 
     private void requestGameImageProcessing(String gameImageFileName) throws Exception {
-        try {this.messageProducer.sendMessage(new ImageSubmittedMsg(gameImageFileName));
+        try {
+            this.messageProducer.sendMessage(new ImageSubmittedMsg(gameImageFileName));
         } catch (AmqpException e) {
             throw new Exception("Failed to send message to queue: " + e.getMessage());
         }
@@ -237,5 +250,16 @@ public class GameService {
             throw new EntityNotFound("Game image not found for game ID: " + id);
         }
         return this.fileService.getFileFromStorage(game.getScoreboardImageName());
+    }
+
+    public void updateStatusForEdition(Integer id, PatchStatusForEdition patchStatusForEdition) throws EntityNotFound, IllegalGameStateException {
+        Game game = this.getGameById(id);
+
+        if (patchStatusForEdition.getStatusForEdition() == StatusForEdition.CLOSED && game.getGameResultsStatus() != GameResultsStatus.ACCEPTED) {
+            throw new IllegalGameStateException("Cannot close the game edition when game results are not accepted.");
+        }
+
+        game.setStatusForEdition(patchStatusForEdition.getStatusForEdition());
+        this.gameRepository.save(game);
     }
 }

@@ -7,6 +7,7 @@ import com.example.colados_leaderboard_api.entity.GameResult;
 import com.example.colados_leaderboard_api.entity.Player;
 import com.example.colados_leaderboard_api.enums.GameResultsStatus;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
+import com.example.colados_leaderboard_api.exceptions.IllegalGameStateException;
 import com.example.colados_leaderboard_api.exceptions.IncompleteGameResultsException;
 import com.example.colados_leaderboard_api.exceptions.InvalidDataInGameResultsException;
 import com.example.colados_leaderboard_api.repository.GameRepository;
@@ -63,7 +64,7 @@ class GameServiceTest {
     }
 
     @Test
-    void givenCompleteGameResults_whenUpdateGameResultsStatus_thenCallRepoSave() throws EntityNotFound, InvalidDataInGameResultsException, IncompleteGameResultsException {
+    void givenCompleteGameResults_whenUpdateGameResultsStatus_thenCallRepoSave() throws EntityNotFound, InvalidDataInGameResultsException, IncompleteGameResultsException, IllegalGameStateException {
         AppUser appUser = mock(AppUser.class);
 
         Player player = mock(Player.class);
@@ -136,7 +137,7 @@ class GameServiceTest {
     }
 
     @Test
-    void givenUniqueUserInGameResults_whenUpdateGameResultsStatus_thenCallRepoSave() throws EntityNotFound, InvalidDataInGameResultsException, IncompleteGameResultsException {
+    void givenUniqueUserInGameResults_whenUpdateGameResultsStatus_thenCallRepoSave() throws EntityNotFound, InvalidDataInGameResultsException, IncompleteGameResultsException, IllegalGameStateException {
         AppUser appUser1 = mock(AppUser.class);
         when(appUser1.getId()).thenReturn(1);
         AppUser appUser2 = mock(AppUser.class);
