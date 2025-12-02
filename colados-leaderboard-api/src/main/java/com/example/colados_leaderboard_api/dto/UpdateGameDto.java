@@ -20,4 +20,6 @@ public class UpdateGameDto {
 
     @NotNull
     private List<UpdateGameResultDto> gameResults;
+
+    private boolean processImage;
 }

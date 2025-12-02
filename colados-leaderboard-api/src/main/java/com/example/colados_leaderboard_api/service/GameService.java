@@ -1,11 +1,9 @@
 package com.example.colados_leaderboard_api.service;
 
-import com.example.colados_leaderboard_api.configuration.AppConstants;
 import com.example.colados_leaderboard_api.dto.*;
 import com.example.colados_leaderboard_api.entity.Championship;
 import com.example.colados_leaderboard_api.entity.Game;
 import com.example.colados_leaderboard_api.entity.GameResult;
-import com.example.colados_leaderboard_api.entity.Player;
 import com.example.colados_leaderboard_api.enums.GameResultsStatus;
 import com.example.colados_leaderboard_api.enums.ImageProcessingStatus;
 import com.example.colados_leaderboard_api.enums.GameResultsInputMethod;
@@ -18,6 +16,7 @@ import com.example.colados_leaderboard_api.exceptions.InvalidDataInGameResultsEx
 import com.example.colados_leaderboard_api.mapper.GameMapper;
 import com.example.colados_leaderboard_api.mapper.GameResultMapper;
 import com.example.colados_leaderboard_api.mapper.ImageProcessedMsgMapper;
+import com.example.colados_leaderboard_api.mapper.UpdateGameResultDtoMapper;
 import com.example.colados_leaderboard_api.producer.MessageProducer;
 import com.example.colados_leaderboard_api.repository.GameRepository;
 import org.springframework.amqp.AmqpException;
@@ -27,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -39,9 +39,9 @@ public class GameService {
     private final ApplicationEventPublisher publisher;
     private final ImageProcessedMsgMapper imageProcessedMsgMapper;
     private final PlayerService playerService;
-    private final AppConstants appConstants;
+    private final UpdateGameResultDtoMapper updateGameResultDtoMapper;
 
-    public GameService(FileService fileService, ChampionshipService championshipService, GameRepository gameRepository, MessageProducer messageProducer, ApplicationEventPublisher publisher, ImageProcessedMsgMapper imageProcessedMsgMapper, PlayerService playerService, AppConstants appConstants) {
+    public GameService(FileService fileService, ChampionshipService championshipService, GameRepository gameRepository, MessageProducer messageProducer, ApplicationEventPublisher publisher, ImageProcessedMsgMapper imageProcessedMsgMapper, PlayerService playerService, UpdateGameResultDtoMapper updateGameResultDtoMapper) {
         this.fileService = fileService;
         this.championshipService = championshipService;
         this.gameRepository = gameRepository;
@@ -49,7 +49,7 @@ public class GameService {
         this.publisher = publisher;
         this.imageProcessedMsgMapper = imageProcessedMsgMapper;
         this.playerService = playerService;
-        this.appConstants = appConstants;
+        this.updateGameResultDtoMapper = updateGameResultDtoMapper;
     }
 
     public void registerGame(RegisterGameDto registerGameDto, MultipartFile file) throws Exception {
@@ -59,24 +59,17 @@ public class GameService {
         // Register game played
         Game game = new Game();
         game.setChampionship(championship);
+        game.setPlayedAt(registerGameDto.getPlayedAt() != null ? registerGameDto.getPlayedAt() : Instant.now());
         game.setStatusForEdition(StatusForEdition.OPEN);
+        if (registerGameDto.getGameResults() != null && !registerGameDto.getGameResults().isEmpty()) {
+            game.setGameResults(updateGameResultDtoMapper.toGameResultList(registerGameDto.getGameResults(), game));
+            game.setGameResultsInputMethod(GameResultsInputMethod.MANUAL);
+        }
         this.gameRepository.save(game);
 
-        // Handle file if present
-        if (file != null) {
-            try {
-                String newFileName = this.fileService.uploadFileToStorage(file);
-
-                game.setScoreboardImageName(newFileName);
-                game.setImageProcessingStatus(ImageProcessingStatus.SUBMITTED);
-                this.gameRepository.save(game);
-
-                this.messageProducer.sendMessage(new ImageSubmittedMsg(newFileName));
-            } catch (IOException e) {
-                throw new Exception("Failed to handle file: " + e.getMessage());
-            } catch (AmqpException e) {
-                throw new Exception("Failed to send message to queue: " + e.getMessage());
-            }
+        // Handle file if present and processing requested
+        if (file != null && registerGameDto.isProcessImage()) {
+            processGameImage(game.getId(), file);
         }
     }
 
@@ -180,7 +173,7 @@ public class GameService {
         }
     }
 
-    public void updateGame(Integer id, UpdateGameDto updateGameDto) throws EntityNotFound, IllegalGameStateException {
+    public void updateGame(Integer id, UpdateGameDto updateGameDto, MultipartFile file) throws Exception {
         Game game = this.getGameById(id);
 
         // If ImageProcessingStatus is SUBMITTED, do not allow updates
@@ -188,46 +181,28 @@ public class GameService {
             throw new IllegalGameStateException("Cannot update game results while image processing is not finished.");
         }
 
-        // Update basic game info
+        // Validate championship exists
         Championship championship = championshipService.getById(updateGameDto.getChampionshipId());
+
+        // Update basic game info
         game.setChampionship(championship);
         game.setPlayedAt(updateGameDto.getPlayedAt());
 
-        // Clear existing results
-        game.getGameResults().clear();
-
-        // Add updated results
-        for (UpdateGameResultDto resultDto : updateGameDto.getGameResults()) {
-            GameResult gameResult = new GameResult();
-            gameResult.setGame(game);
-            Player player = null;
-            if (resultDto.getPlayerId() == null && resultDto.getUserId() != null) {
-                // If playerId is not provided, but userId is, try to fetch player by userId and playedAt
-                player = playerService.getByUserId(
-                                resultDto.getUserId(),
-                                game.getPlayedAt()
-                        );
-            } else if (resultDto.getPlayerId() != null) {
-                // If playerId is provided, fetch player by playerId
-                player = playerService.getById(resultDto.getPlayerId());
-            }
-            gameResult.setPlayer(player);
-            gameResult.setCharacterName(
-                    player != null ? player.getCharacterName() : null
-            );
-            gameResult.setPosition(resultDto.getPosition());
-            gameResult.setScore(resultDto.getScore());
-            gameResult.setMaxScoreAchieved(resultDto.getScore() != null && resultDto.getScore() >= appConstants.getGameMaxScore());
-            game.getGameResults().add(gameResult);
+        // Update game results
+        if (updateGameDto.getGameResults() != null && !updateGameDto.getGameResults().isEmpty()) {
+            game.getGameResults().clear();
+            game.getGameResults().addAll(updateGameResultDtoMapper.toGameResultList(updateGameDto.getGameResults(), game));
+            game.setGameResultsInputMethod(GameResultsInputMethod.MANUAL);
         }
-
-        // Update game result input method
-        game.setGameResultsInputMethod(GameResultsInputMethod.MANUAL);
-
         this.gameRepository.save(game);
+
+        // Handle file if present and processing requested
+        if (file != null && updateGameDto.isProcessImage()) {
+            processGameImage(game.getId(), file);
+        }
     }
 
-    public void updateGameImage(Integer id, MultipartFile file) throws Exception {
+    private void processGameImage(Integer id, MultipartFile file) throws Exception {
         Game game = this.getGameById(id);
 
         try {

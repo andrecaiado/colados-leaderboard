@@ -2,7 +2,6 @@ package com.example.colados_leaderboard_api.controller;
 
 import com.example.colados_leaderboard_api.dto.*;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
-import com.example.colados_leaderboard_api.exceptions.IllegalGameStateException;
 import com.example.colados_leaderboard_api.exceptions.IncompleteGameResultsException;
 import com.example.colados_leaderboard_api.exceptions.InvalidDataInGameResultsException;
 import com.example.colados_leaderboard_api.service.GameService;
@@ -59,18 +58,13 @@ public class GameController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateGame(@PathVariable Integer id, @Valid @RequestBody UpdateGameDto updateGameDto) throws EntityNotFound, IllegalGameStateException {
-        gameService.updateGame(id, updateGameDto);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @PutMapping("/{id}/image")
-    public ResponseEntity<Void> updateGameImage(@PathVariable Integer id, @RequestParam("file") MultipartFile file) throws Exception {
-        if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
+    public ResponseEntity<Void> updateGame(@PathVariable Integer id, @Valid @RequestPart("game") UpdateGameDto updateGameDto, @RequestPart(value = "file", required = false) MultipartFile file) throws Exception {
+        if (file != null && file.getContentType() != null && !file.getContentType().startsWith("image/")) {
             throw new IllegalArgumentException("Only image files are allowed.");
         }
 
-        gameService.updateGameImage(id, file);
+        gameService.updateGame(id, updateGameDto, file);
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
