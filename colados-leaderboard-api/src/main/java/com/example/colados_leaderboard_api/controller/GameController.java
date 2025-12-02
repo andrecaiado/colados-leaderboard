@@ -12,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.*;
+import java.net.URLConnection;
+
 @RestController
 @RequestMapping("/api/v1/games")
 public class GameController {
@@ -36,24 +39,28 @@ public class GameController {
     @GetMapping("/{id}")
     public ResponseEntity<GameDto> getGame(@PathVariable Integer id) throws EntityNotFound {
         GameDto game = gameService.getGame(id);
+
         return ResponseEntity.ok(game);
     }
 
     @GetMapping()
     public ResponseEntity<Iterable<GameDto>> getAllGames() {
         Iterable<GameDto> games = gameService.getAllGames();
+
         return ResponseEntity.ok(games);
     }
 
     @GetMapping("/{id}/results")
     public ResponseEntity<Iterable<GameResultDto>> getGameResults(@PathVariable Integer id) throws EntityNotFound {
         Iterable<GameResultDto> results = gameService.getGameResults(id);
+
         return ResponseEntity.ok(results);
     }
 
     @PatchMapping("/{id}/game-results-status")
     public ResponseEntity<Void> updateGameResultsStatus(@PathVariable Integer id, @Valid @RequestBody PatchGameResultsStatus patchGameResultsStatus) throws EntityNotFound, IncompleteGameResultsException, InvalidDataInGameResultsException {
         gameService.updateGameResultsStatus(id, patchGameResultsStatus);
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -66,5 +73,29 @@ public class GameController {
         gameService.updateGame(id, updateGameDto, file);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{id}/image")
+    public ResponseEntity<byte[]> getGameImage(@PathVariable Integer id) throws EntityNotFound {
+        byte[] imageData = gameService.getGameImage(id);
+
+        String mediaType = detectMediaType(imageData);
+
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType(mediaType)).body(imageData);
+    }
+
+    private static String detectMediaType(byte[] data) {
+        // Check for WebP header: "RIFF....WEBP"
+        if (data.length >= 12 &&
+                data[0] == 'R' && data[1] == 'I' && data[2] == 'F' && data[3] == 'F' &&
+                data[8] == 'W' && data[9] == 'E' && data[10] == 'B' && data[11] == 'P') {
+            return "image/webp";
+        }
+        try (InputStream is = new BufferedInputStream(new ByteArrayInputStream(data))) {
+            String mimeType = URLConnection.guessContentTypeFromStream(is);
+            return mimeType != null ? mimeType : "application/octet-stream";
+        } catch (Exception e) {
+            return "application/octet-stream";
+        }
     }
 }

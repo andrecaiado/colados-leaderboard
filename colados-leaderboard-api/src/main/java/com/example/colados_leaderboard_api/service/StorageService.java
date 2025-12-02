@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.util.UUID;
 
 @Service
 public class StorageService {
@@ -40,12 +39,16 @@ public class StorageService {
         }
     }
 
-    private String buildFileName(String originalFilename) {
-        String fileExtension = "";
-        int dotIndex = originalFilename.lastIndexOf('.');
-        if (dotIndex >= 0) {
-            fileExtension = originalFilename.substring(dotIndex);
+    public byte[] getFile(String scoreboardImageName) {
+        try {
+            return minioClient.getObject(
+                    io.minio.GetObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(scoreboardImageName)
+                            .build()
+            ).readAllBytes();
+        } catch (Exception e) {
+            throw new RuntimeException("Error occurred: " + e.getMessage());
         }
-        return UUID.randomUUID().toString().concat(fileExtension);
     }
 }

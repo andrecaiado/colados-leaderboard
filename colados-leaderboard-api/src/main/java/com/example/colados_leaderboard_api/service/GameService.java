@@ -67,9 +67,9 @@ public class GameService {
         }
         this.gameRepository.save(game);
 
-        // Handle file if present and processing requested
-        if (file != null && registerGameDto.isProcessImage()) {
-            processGameImage(game.getId(), file);
+        // Handle file if present
+        if (file != null) {
+            processGameImage(game.getId(), file, registerGameDto.isProcessImage());
         }
     }
 
@@ -196,27 +196,46 @@ public class GameService {
         }
         this.gameRepository.save(game);
 
-        // Handle file if present and processing requested
-        if (file != null && updateGameDto.isProcessImage()) {
-            processGameImage(game.getId(), file);
+        // Handle file if present
+        if (file != null) {
+            processGameImage(game.getId(), file, updateGameDto.isProcessImage());
         }
     }
 
-    private void processGameImage(Integer id, MultipartFile file) throws Exception {
+    private void processGameImage(Integer id, MultipartFile file, boolean processImage) throws Exception {
+        String gameImageFileName = storeGameImage(id, file);
+        if (processImage) {
+            requestGameImageProcessing(gameImageFileName);
+        }
+    }
+
+    private String storeGameImage(Integer id, MultipartFile file) throws Exception {
         Game game = this.getGameById(id);
 
         try {
             String newFileName = this.fileService.uploadFileToStorage(file);
 
             game.setScoreboardImageName(newFileName);
-            game.setImageProcessingStatus(ImageProcessingStatus.SUBMITTED);
             this.gameRepository.save(game);
 
-            this.messageProducer.sendMessage(new ImageSubmittedMsg(newFileName));
+            return newFileName;
         } catch (IOException e) {
             throw new Exception("Failed to handle file: " + e.getMessage());
+        }
+    }
+
+    private void requestGameImageProcessing(String gameImageFileName) throws Exception {
+        try {this.messageProducer.sendMessage(new ImageSubmittedMsg(gameImageFileName));
         } catch (AmqpException e) {
             throw new Exception("Failed to send message to queue: " + e.getMessage());
         }
+    }
+
+    public byte[] getGameImage(Integer id) throws EntityNotFound {
+        Game game = this.getGameById(id);
+        if (game.getScoreboardImageName() == null) {
+            throw new EntityNotFound("Game image not found for game ID: " + id);
+        }
+        return this.fileService.getFileFromStorage(game.getScoreboardImageName());
     }
 }

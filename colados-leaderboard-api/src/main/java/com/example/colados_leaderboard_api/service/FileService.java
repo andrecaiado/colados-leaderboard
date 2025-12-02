@@ -38,4 +38,8 @@ public class FileService {
         }
         return UUID.randomUUID().toString().concat(fileExtension);
     }
+
+    public byte[] getFileFromStorage(String scoreboardImageName) {
+        return this.storageService.getFile(scoreboardImageName);
+    }
 }
