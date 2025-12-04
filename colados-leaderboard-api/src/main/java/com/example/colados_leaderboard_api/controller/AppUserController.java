@@ -25,7 +25,7 @@ public class AppUserController {
         return ResponseEntity.ok(appUserService.getAll());
     }
 
-    @PostMapping("/register-external")
+    @PostMapping("/external")
     public ResponseEntity<AppUserDto> registerExternal(@RequestBody @Valid RegisterExternalAppUserDto registerExternalAppUserDto) {
         var createdUser = appUserService.registerExternal(registerExternalAppUserDto);
 
@@ -44,9 +44,18 @@ public class AppUserController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{appUserId}")
-    public ResponseEntity<Void> deleteAppUser(@PathVariable Integer appUserId) throws EntityNotFound {
-        appUserService.deleteAppUser(appUserId);
+    @DeleteMapping("/external/{appUserId}")
+    public ResponseEntity<Void> deleteExternal(@PathVariable Integer appUserId) throws EntityNotFound {
+        appUserService.deleteExternal(appUserId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/external/{appUserId}")
+    public ResponseEntity<AppUserDto> updateExternalUserRoles(
+            @PathVariable Integer appUserId,
+            @RequestBody @Valid RegisterExternalAppUserDto registerExternalAppUserDto) throws EntityNotFound {
+        appUserService.updateExternalUser(appUserId, registerExternalAppUserDto);
 
         return ResponseEntity.noContent().build();
     }

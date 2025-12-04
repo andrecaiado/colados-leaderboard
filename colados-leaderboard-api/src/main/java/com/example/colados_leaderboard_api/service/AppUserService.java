@@ -32,9 +32,7 @@ public class AppUserService {
     }
 
     public AppUserDto registerExternal(RegisterExternalAppUserDto registerExternalAppUserDto) {
-        appUserRepository.findByEmail(registerExternalAppUserDto.getEmail()).ifPresent(user -> {
-            throw new IllegalArgumentException("User with email " + registerExternalAppUserDto.getEmail() + " already exists.");
-        });
+        validateAppUserDetailsForRegistrationAndUpdate(registerExternalAppUserDto, null);
 
         var appUser = new AppUser();
         appUser.setUsername(registerExternalAppUserDto.getUsername());
@@ -58,7 +56,7 @@ public class AppUserService {
         appUserRepository.save(appUser);
     }
 
-    public void deleteAppUser(Integer appUserId) throws EntityNotFound {
+    public void deleteExternal(Integer appUserId) throws EntityNotFound {
         AppUser appUser = getById(appUserId);
 
         if (appUser.getRoles().contains(AppUserRoles.SUPER_ADMIN) && appUser.getAuthProvider() == AuthProvider.LOCAL) {
@@ -66,5 +64,38 @@ public class AppUserService {
         }
 
         appUserRepository.delete(appUser);
+    }
+
+    public void updateExternalUser(Integer appUserId, RegisterExternalAppUserDto registerExternalAppUserDto) throws EntityNotFound {
+        validateAppUserDetailsForRegistrationAndUpdate(registerExternalAppUserDto, appUserId);
+
+        AppUser appUser = getById(appUserId);
+
+        appUser.setUsername(registerExternalAppUserDto.getUsername());
+        appUser.setEmail(registerExternalAppUserDto.getEmail());
+        appUser.setRoles(registerExternalAppUserDto.getRoles());
+
+        appUserRepository.save(appUser);
+    }
+
+    private void validateAppUserDetailsForRegistrationAndUpdate(RegisterExternalAppUserDto dto, Integer appUserId) {
+        verifyUsernameNotUsedByAnotherUser(dto.getUsername(), appUserId);
+        verifyEmailNotUsedByAnotherUser(dto.getEmail(), appUserId);
+    }
+
+    private void verifyUsernameNotUsedByAnotherUser(String username, Integer appUserId) {
+        appUserRepository.findByUsername(username).ifPresent(user -> {
+            if (appUserId == null || !appUserId.equals(user.getId())) {
+                throw new IllegalArgumentException("Username " + username + " is already in use by another user.");
+            }
+        });
+    }
+
+    private void verifyEmailNotUsedByAnotherUser(String email, Integer appUserId) {
+        appUserRepository.findByEmail(email).ifPresent(user -> {
+            if (appUserId == null || !appUserId.equals(user.getId())) {
+                throw new IllegalArgumentException("Email " + email + " is already in use by another user.");
+            }
+        });
     }
 }

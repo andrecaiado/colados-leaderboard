@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class AppUserDto {
+    private Integer id;
     private String username;
     private String email;
     private List<AppUserRoles> roles;
