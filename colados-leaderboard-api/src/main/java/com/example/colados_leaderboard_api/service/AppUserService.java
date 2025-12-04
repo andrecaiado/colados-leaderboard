@@ -4,6 +4,7 @@ import com.example.colados_leaderboard_api.dto.AppUserDto;
 import com.example.colados_leaderboard_api.dto.ChangePasswordDto;
 import com.example.colados_leaderboard_api.dto.RegisterExternalAppUserDto;
 import com.example.colados_leaderboard_api.entity.AppUser;
+import com.example.colados_leaderboard_api.enums.AppUserRoles;
 import com.example.colados_leaderboard_api.enums.AuthProvider;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.mapper.AppUserMapper;
@@ -55,5 +56,15 @@ public class AppUserService {
         appUser.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
 
         appUserRepository.save(appUser);
+    }
+
+    public void deleteAppUser(Integer appUserId) throws EntityNotFound {
+        AppUser appUser = getById(appUserId);
+
+        if (appUser.getRoles().contains(AppUserRoles.SUPER_ADMIN) && appUser.getAuthProvider() == AuthProvider.LOCAL) {
+            throw new IllegalArgumentException(String.format("Cannot delete a %s user", AppUserRoles.SUPER_ADMIN));
+        }
+
+        appUserRepository.delete(appUser);
     }
 }

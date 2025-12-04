@@ -43,4 +43,12 @@ public class AppUserController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{appUserId}")
+    public ResponseEntity<Void> deleteAppUser(@PathVariable Integer appUserId) throws EntityNotFound {
+        appUserService.deleteAppUser(appUserId);
+
+        return ResponseEntity.noContent().build();
+    }
+
 }
