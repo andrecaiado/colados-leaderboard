@@ -47,3 +47,13 @@ rabbitmq:
 app:
   constants:
     game-max-score: 60
+
+# JWT configuration
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: 3600000  # 1 hour in milliseconds
+
+# Superadmin credentials
+superadmin:
+  email: ${SUPER_ADMIN_EMAIL}
+  password: ${SUPER_ADMIN_PASSWORD}

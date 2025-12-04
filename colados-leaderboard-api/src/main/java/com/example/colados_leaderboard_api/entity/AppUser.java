@@ -1,11 +1,15 @@
 package com.example.colados_leaderboard_api.entity;
 
+import com.example.colados_leaderboard_api.enums.AppUserRoles;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Setter
 @Getter
 @Entity
 public class AppUser {
@@ -16,9 +20,16 @@ public class AppUser {
     @NotNull
     private String username;
 
+    private String password;
+
     @NotNull
     private String email;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Player> players;
+
+    @NotEmpty
+    @ElementCollection(targetClass = AppUserRoles.class, fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private List<AppUserRoles> roles;
 }
