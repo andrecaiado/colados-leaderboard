@@ -20,12 +20,14 @@ public class AppUser {
     private Integer id;
 
     @NotNull
+    @Column(unique = true)
     private String username;
 
     private String password;
 
     @NotNull
     @Email
+    @Column(unique = true)
     private String email;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
