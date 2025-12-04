@@ -40,7 +40,7 @@ public class AuthController {
 
         final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        String accessToken = jwtUtil.generateToken(userDetails.getUsername());
+        String accessToken = jwtUtil.generateToken(userDetails);
         JwtResponseDto jwtResponse = JwtResponseDto.builder()
                 .accessToken(accessToken)
                 .tokenType("Bearer")

@@ -6,11 +6,14 @@ import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @Getter
@@ -30,10 +33,16 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String username) {
+    public String generateToken(UserDetails userDetails) {
         long now = System.currentTimeMillis();
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
         return Jwts.builder()
-                .subject(username)
+                .subject(userDetails.getUsername())
+                .claim("roles", roles)
+                .claim("aud", "colados-leaderboard-client")
+                .issuer("colados-leaderboard-api")
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + jwtExpirationInMs))
                 .signWith(key)
