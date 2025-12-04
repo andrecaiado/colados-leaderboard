@@ -9,5 +9,5 @@ import lombok.Setter;
 @Getter
 public class JwtResponseDto {
     private String accessToken;
-    private String tokenType = "Bearer";
+    private String tokenType;
 }

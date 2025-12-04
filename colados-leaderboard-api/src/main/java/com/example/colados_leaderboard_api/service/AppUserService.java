@@ -1,7 +1,9 @@
 package com.example.colados_leaderboard_api.service;
 
 import com.example.colados_leaderboard_api.dto.AppUserDto;
+import com.example.colados_leaderboard_api.dto.RegisterExternalAppUserDto;
 import com.example.colados_leaderboard_api.entity.AppUser;
+import com.example.colados_leaderboard_api.enums.AuthProvider;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.mapper.AppUserMapper;
 import com.example.colados_leaderboard_api.repository.AppUserRepository;
@@ -22,5 +24,19 @@ public class AppUserService {
 
     public AppUser getById(Integer userId) throws EntityNotFound {
         return appUserRepository.findById(userId).orElseThrow(() -> new EntityNotFound("AppUser not found with ID: " + userId));
+    }
+
+    public AppUserDto registerExternal(RegisterExternalAppUserDto registerExternalAppUserDto) {
+        appUserRepository.findByEmail(registerExternalAppUserDto.getEmail()).ifPresent(user -> {
+            throw new IllegalArgumentException("User with email " + registerExternalAppUserDto.getEmail() + " already exists.");
+        });
+
+        var appUser = new AppUser();
+        appUser.setUsername(registerExternalAppUserDto.getUsername());
+        appUser.setEmail(registerExternalAppUserDto.getEmail());
+        appUser.setRoles(registerExternalAppUserDto.getRoles());
+        appUser.setAuthProvider(AuthProvider.EXTERNAL);
+
+        return AppUserMapper.toDto(appUserRepository.save(appUser));
     }
 }

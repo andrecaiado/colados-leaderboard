@@ -17,6 +17,8 @@ public final class AppUserMapper {
         AppUserDto dto = new AppUserDto();
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
+        dto.setRoles(user.getRoles());
+        dto.setAuthProvider(user.getAuthProvider());
         return dto;
     }
 
