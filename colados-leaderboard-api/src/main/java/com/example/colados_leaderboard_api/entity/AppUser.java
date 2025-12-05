@@ -30,7 +30,7 @@ public class AppUser {
     @Column(unique = true)
     private String email;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private List<Player> players;
 
     @NotEmpty

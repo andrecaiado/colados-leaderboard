@@ -4,8 +4,11 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.Setter;
+
 import java.time.Instant;
 
+@Setter
 @Getter
 @Entity
 public class Player {

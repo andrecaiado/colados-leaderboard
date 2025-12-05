@@ -3,7 +3,9 @@ package com.example.colados_leaderboard_api.service;
 import com.example.colados_leaderboard_api.dto.AppUserDto;
 import com.example.colados_leaderboard_api.dto.ChangePasswordDto;
 import com.example.colados_leaderboard_api.dto.RegisterExternalAppUserDto;
+import com.example.colados_leaderboard_api.dto.UpdateProfileDto;
 import com.example.colados_leaderboard_api.entity.AppUser;
+import com.example.colados_leaderboard_api.entity.Player;
 import com.example.colados_leaderboard_api.enums.AuthProvider;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.mapper.AppUserMapper;
@@ -11,6 +13,9 @@ import com.example.colados_leaderboard_api.repository.AppUserRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class AppUserService {
@@ -105,5 +110,29 @@ public class AppUserService {
                 throw new IllegalArgumentException("Email " + email + " is already in use by another user.");
             }
         });
+    }
+
+    public void updateProfile(String email, UpdateProfileDto updateProfileDto) throws EntityNotFound {
+        AppUser user = getByEmail(email);
+
+        user.setUsername(updateProfileDto.getUsername());
+
+        Player mostRecentPlayer = user.getPlayers().stream()
+                .max(Comparator.comparing(Player::getCreatedAt))
+                .orElse(null);
+
+        if (mostRecentPlayer == null || !updateProfileDto.getCharacterName().equals(mostRecentPlayer.getCharacterName())) {
+            Player newPlayer = new Player();
+            newPlayer.setCharacterName(updateProfileDto.getCharacterName());
+            newPlayer.setCreatedAt(java.time.Instant.now());
+            newPlayer.setUser(user);
+
+            List<Player> players = user.getPlayers();
+            players.add(newPlayer);
+            user.setPlayers(players);
+        }
+        user.getPlayers().forEach(p -> System.out.println(p.getCharacterName() + " " + p.getCreatedAt()));
+
+        appUserRepository.save(user);
     }
 }
