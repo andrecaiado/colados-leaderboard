@@ -4,7 +4,6 @@ import com.example.colados_leaderboard_api.dto.AppUserDto;
 import com.example.colados_leaderboard_api.dto.ChangePasswordDto;
 import com.example.colados_leaderboard_api.dto.RegisterExternalAppUserDto;
 import com.example.colados_leaderboard_api.entity.AppUser;
-import com.example.colados_leaderboard_api.enums.AppUserRoles;
 import com.example.colados_leaderboard_api.enums.AuthProvider;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.mapper.AppUserMapper;
@@ -28,7 +27,11 @@ public class AppUserService {
     }
 
     public AppUser getById(Integer userId) throws EntityNotFound {
-        return appUserRepository.findById(userId).orElseThrow(() -> new EntityNotFound("AppUser not found with ID: " + userId));
+        return appUserRepository.findById(userId).orElseThrow(() -> new EntityNotFound("User not found with ID: " + userId));
+    }
+
+    private AppUser getByEmail(String email) throws EntityNotFound {
+        return appUserRepository.findByEmail(email).orElseThrow(() -> new EntityNotFound("User not found with email: " + email));
     }
 
     public AppUserDto registerExternal(RegisterExternalAppUserDto registerExternalAppUserDto) {
@@ -43,8 +46,13 @@ public class AppUserService {
         return AppUserMapper.toDto(appUserRepository.save(appUser));
     }
 
-    public void updatePassword(Integer appUserId, ChangePasswordDto changePasswordDto) throws EntityNotFound {
-        var appUser = getById(appUserId);
+    public void updatePassword(String email, ChangePasswordDto changePasswordDto) throws EntityNotFound {
+        var appUser = getByEmail(email);
+
+        // External users cannot change passwords
+        if (AuthProvider.EXTERNAL.equals(appUser.getAuthProvider())) {
+            throw new IllegalArgumentException("External users cannot change passwords");
+        }
 
         // Verify the old password and hash the new password
         if (!passwordEncoder.matches(changePasswordDto.getOldPassword(), appUser.getPassword())) {
@@ -59,8 +67,8 @@ public class AppUserService {
     public void deleteExternal(Integer appUserId) throws EntityNotFound {
         AppUser appUser = getById(appUserId);
 
-        if (appUser.getRoles().contains(AppUserRoles.SUPER_ADMIN) && appUser.getAuthProvider() == AuthProvider.LOCAL) {
-            throw new IllegalArgumentException(String.format("Cannot delete a %s user", AppUserRoles.SUPER_ADMIN));
+        if (appUser.isRoot()) {
+            throw new EntityNotFound("User not found with ID: " + appUserId);
         }
 
         appUserRepository.delete(appUser);

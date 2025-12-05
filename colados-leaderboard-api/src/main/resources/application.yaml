@@ -53,7 +53,7 @@ jwt:
   secret: ${JWT_SECRET}
   expiration-ms: 3600000  # 1 hour in milliseconds
 
-# Superadmin credentials
-superadmin:
-  email: ${SUPER_ADMIN_EMAIL}
-  password: ${SUPER_ADMIN_PASSWORD}
+# Root app user credentials
+rootappuser:
+  email: ${ROOT_APPUSER_EMAIL}
+  password: ${ROOT_APPUSER_PASSWORD}

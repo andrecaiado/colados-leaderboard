@@ -43,4 +43,7 @@ public class AppUser {
     @NotNull
     @Enumerated(EnumType.STRING)
     private AuthProvider authProvider;
+
+    @NotNull
+    private boolean isRoot;
 }
