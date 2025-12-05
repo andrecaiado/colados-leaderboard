@@ -21,11 +21,6 @@ public class AppUserController {
         this.appUserService = appUserService;
     }
 
-    @GetMapping()
-    public ResponseEntity<Iterable<AppUserDto>> getAllAppUsers() {
-        return ResponseEntity.ok(appUserService.getAll());
-    }
-
     @PatchMapping("/password")
     public ResponseEntity<AppUserDto> updatePassword(
             @RequestBody ChangePasswordDto changePasswordDto,

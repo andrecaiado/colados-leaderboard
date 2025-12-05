@@ -28,7 +28,7 @@ public class AppUserService {
     }
 
     public Iterable<AppUserDto> getAll() {
-        return AppUserMapper.toDtoList(appUserRepository.findAll(Sort.by("username")));
+        return AppUserMapper.toDtoList(appUserRepository.findByIsRoot(false, Sort.by("username")));
     }
 
     public AppUser getById(Integer userId) throws EntityNotFound {
