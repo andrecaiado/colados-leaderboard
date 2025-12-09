@@ -1,6 +1,5 @@
 package com.example.colados_leaderboard_api.controller;
 
-import com.example.colados_leaderboard_api.dto.CharacterList;
 import com.example.colados_leaderboard_api.service.CharacterNamesProvider;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

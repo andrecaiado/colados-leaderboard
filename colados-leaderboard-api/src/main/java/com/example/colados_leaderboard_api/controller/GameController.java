@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +27,7 @@ public class GameController {
         this.gameService = gameService;
     }
 
+    @PreAuthorize("hasAuthority('EDITOR')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> registerGame(@RequestPart("game") RegisterGameDto registerGameDto, @RequestPart(value = "file", required = false) MultipartFile file) throws Exception {
         if (file != null && file.getContentType() != null && !file.getContentType().startsWith("image/")) {
@@ -36,6 +38,7 @@ public class GameController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<GameDto> getGame(@PathVariable Integer id) throws EntityNotFound {
@@ -58,6 +61,7 @@ public class GameController {
         return ResponseEntity.ok(results);
     }
 
+    @PreAuthorize("hasAuthority('EDITOR')")
     @PatchMapping("/{id}/game-results-status")
     public ResponseEntity<Void> updateGameResultsStatus(@PathVariable Integer id, @Valid @RequestBody PatchGameResultsStatus patchGameResultsStatus) throws EntityNotFound, IncompleteGameResultsException, InvalidDataInGameResultsException, IllegalGameStateException {
         gameService.updateGameResultsStatus(id, patchGameResultsStatus);
@@ -65,6 +69,7 @@ public class GameController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PreAuthorize("hasAuthority('EDITOR')")
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateGame(@PathVariable Integer id, @Valid @RequestPart("game") UpdateGameDto updateGameDto, @RequestPart(value = "file", required = false) MultipartFile file) throws Exception {
         if (file != null && file.getContentType() != null && !file.getContentType().startsWith("image/")) {
@@ -100,6 +105,7 @@ public class GameController {
         }
     }
 
+    @PreAuthorize("hasAuthority('EDITOR')")
     @PatchMapping("/{id}/status-for-edition")
     public ResponseEntity<Void> updateStatusForEdition(@PathVariable Integer id, @Valid @RequestBody PatchStatusForEdition patchStatusForEdition) throws EntityNotFound, IllegalGameStateException {
         gameService.updateStatusForEdition(id, patchStatusForEdition);

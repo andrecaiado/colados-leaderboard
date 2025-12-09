@@ -2,6 +2,7 @@ package com.example.colados_leaderboard_api.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -101,5 +102,27 @@ public class GlobalExceptionHandler {
                 "Validation failed"
         );
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorMessage> handleGenericException(Exception ex) {
+        ErrorMessage errorMessage = new ErrorMessage(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                new java.util.Date(),
+                ex.getMessage(),
+                "An unexpected error occurred"
+        );
+        return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorMessage> handleAccessDenied(AccessDeniedException ex) {
+        ErrorMessage errorMessage = new ErrorMessage(
+                HttpStatus.FORBIDDEN.value(),
+                new java.util.Date(),
+                ex.getMessage(),
+                "Access denied"
+        );
+        return new ResponseEntity<>(errorMessage, HttpStatus.FORBIDDEN);
     }
 }

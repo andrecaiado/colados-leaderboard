@@ -8,8 +8,10 @@ import com.example.colados_leaderboard_api.service.ChampionshipService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@PreAuthorize("hasAuthority('ADMIN')")
 @RestController
 @RequestMapping("/api/v1/championships")
 public class ChampionshipController {
