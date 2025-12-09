@@ -22,9 +22,13 @@ public class CustomUserDetailsService implements UserDetailsService {
                 () -> new UsernameNotFoundException("User not found with email: " + email)
         );
 
+        // Ensure password is not null to avoid issues when
+        // user is authenticated via OAuth2, is external, does not have a password
+        String password = user.getPassword() != null ? user.getPassword() : "";
+
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
-                .password(user.getPassword())
+                .password(password)
                 .authorities(user.getRoles().stream().map(Enum::name).toArray(String[]::new))
                 .build();
     }

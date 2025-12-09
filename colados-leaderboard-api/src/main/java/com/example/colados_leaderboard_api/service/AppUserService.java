@@ -35,7 +35,7 @@ public class AppUserService {
         return appUserRepository.findById(userId).orElseThrow(() -> new EntityNotFound("User not found with ID: " + userId));
     }
 
-    private AppUser getByEmail(String email) throws EntityNotFound {
+    public AppUser getByEmail(String email) throws EntityNotFound {
         return appUserRepository.findByEmail(email).orElseThrow(() -> new EntityNotFound("User not found with email: " + email));
     }
 
@@ -114,6 +114,8 @@ public class AppUserService {
 
     public void updateProfile(String email, UpdateProfileDto updateProfileDto) throws EntityNotFound {
         AppUser user = getByEmail(email);
+
+        verifyUsernameNotUsedByAnotherUser(updateProfileDto.getUsername(), user.getId());
 
         user.setUsername(updateProfileDto.getUsername());
 

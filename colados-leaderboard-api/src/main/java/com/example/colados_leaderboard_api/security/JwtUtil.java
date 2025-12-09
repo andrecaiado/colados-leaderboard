@@ -1,5 +1,6 @@
 package com.example.colados_leaderboard_api.security;
 
+import com.example.colados_leaderboard_api.entity.AppUser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -42,6 +43,24 @@ public class JwtUtil {
                 .subject(userDetails.getUsername())
                 .claim("roles", roles)
                 .claim("aud", "colados-leaderboard-client")
+                .issuer("colados-leaderboard-api")
+                .issuedAt(new Date(now))
+                .expiration(new Date(now + jwtExpirationInMs))
+                .signWith(key)
+                .compact();
+    }
+
+    public String generateTokenForOAuth(AppUser appUser) {
+        List<String> roles = appUser.getRoles().stream()
+                .map(Enum::name)
+                .toList();
+        String email = appUser.getEmail();
+        long now = System.currentTimeMillis();
+        return Jwts.builder()
+                .subject(email)
+                .claim("roles", roles)
+                .claim("aud", "colados-leaderboard-client")
+                .claim("oauth", true)
                 .issuer("colados-leaderboard-api")
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + jwtExpirationInMs))
