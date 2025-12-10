@@ -115,6 +115,11 @@ public class AppUserService {
     public void updateProfile(String email, UpdateProfileDto updateProfileDto) throws EntityNotFound {
         AppUser user = getByEmail(email);
 
+        // Root user cannot update profile
+        if (user.isRoot()) {
+            throw new IllegalArgumentException("Root user cannot update profile");
+        }
+
         verifyUsernameNotUsedByAnotherUser(updateProfileDto.getUsername(), user.getId());
 
         user.setUsername(updateProfileDto.getUsername());
