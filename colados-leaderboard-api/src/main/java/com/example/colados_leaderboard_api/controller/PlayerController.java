@@ -4,6 +4,7 @@ import com.example.colados_leaderboard_api.dto.PlayerDto;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.service.PlayerService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,7 @@ public class PlayerController {
         this.playerService = playerService;
     }
 
+    @PreAuthorize("hasAnyAuthority('VIEWER', 'EDITOR')")
     @GetMapping("/user/{userId}")
     public ResponseEntity<Iterable<PlayerDto>> getPlayersByUserId(@PathVariable Integer userId) throws EntityNotFound {
         return ResponseEntity.ok(playerService.getByUser(userId));

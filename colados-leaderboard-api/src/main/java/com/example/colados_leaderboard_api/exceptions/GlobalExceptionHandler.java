@@ -3,6 +3,7 @@ package com.example.colados_leaderboard_api.exceptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -124,5 +125,16 @@ public class GlobalExceptionHandler {
                 "Access denied"
         );
         return new ResponseEntity<>(errorMessage, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorMessage> handleBadCredentialsException(BadCredentialsException ex) {
+        ErrorMessage errorMessage = new ErrorMessage(
+                HttpStatus.UNAUTHORIZED.value(),
+                new java.util.Date(),
+                ex.getMessage(),
+                "Invalid credentials"
+        );
+        return new ResponseEntity<>(errorMessage, HttpStatus.UNAUTHORIZED);
     }
 }

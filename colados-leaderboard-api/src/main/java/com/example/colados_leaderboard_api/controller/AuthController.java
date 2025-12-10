@@ -6,6 +6,7 @@ import com.example.colados_leaderboard_api.entity.AppUser;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.security.JwtUtil;
 import com.example.colados_leaderboard_api.service.AppUserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.core.ParameterizedTypeReference;
@@ -26,6 +27,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+@SecurityRequirements
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {

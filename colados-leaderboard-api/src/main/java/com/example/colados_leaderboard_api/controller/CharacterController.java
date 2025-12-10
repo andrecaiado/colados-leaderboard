@@ -1,6 +1,7 @@
 package com.example.colados_leaderboard_api.controller;
 
 import com.example.colados_leaderboard_api.service.CharacterNamesProvider;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,7 @@ public class CharacterController {
         this.characterNamesProvider = characterNamesProvider;
     }
 
+    @PreAuthorize("hasAnyAuthority('VIEWER', 'EDITOR')")
     @GetMapping("/names")
     public List<String> getCharacterNames() {
         return characterNamesProvider.getCharacterNames();

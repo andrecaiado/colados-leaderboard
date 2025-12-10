@@ -39,7 +39,7 @@ public class GameController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
+    @PreAuthorize("hasAnyAuthority('VIEWER', 'EDITOR')")
     @GetMapping("/{id}")
     public ResponseEntity<GameDto> getGame(@PathVariable Integer id) throws EntityNotFound {
         GameDto game = gameService.getGame(id);
@@ -47,6 +47,7 @@ public class GameController {
         return ResponseEntity.ok(game);
     }
 
+    @PreAuthorize("hasAnyAuthority('VIEWER', 'EDITOR')")
     @GetMapping()
     public ResponseEntity<Iterable<GameDto>> getAllGames() {
         Iterable<GameDto> games = gameService.getAllGames();
@@ -54,6 +55,7 @@ public class GameController {
         return ResponseEntity.ok(games);
     }
 
+    @PreAuthorize("hasAnyAuthority('VIEWER', 'EDITOR')")
     @GetMapping("/{id}/results")
     public ResponseEntity<Iterable<GameResultDto>> getGameResults(@PathVariable Integer id) throws EntityNotFound {
         Iterable<GameResultDto> results = gameService.getGameResults(id);
@@ -81,6 +83,7 @@ public class GameController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PreAuthorize("hasAnyAuthority('VIEWER', 'EDITOR')")
     @GetMapping("/{id}/image")
     public ResponseEntity<byte[]> getGameImage(@PathVariable Integer id) throws EntityNotFound {
         byte[] imageData = gameService.getGameImage(id);

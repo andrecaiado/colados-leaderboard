@@ -73,3 +73,9 @@ jwt:
 rootappuser:
   email: ${ROOT_APPUSER_EMAIL}
   password: ${ROOT_APPUSER_PASSWORD}
+  
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
