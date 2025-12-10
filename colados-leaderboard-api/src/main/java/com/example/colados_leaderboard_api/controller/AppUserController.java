@@ -5,12 +5,14 @@ import com.example.colados_leaderboard_api.dto.ChangePasswordDto;
 import com.example.colados_leaderboard_api.dto.UpdateProfileDto;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.service.AppUserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "App Users", description = "Operations for managing the authenticated user's account")
 @RestController
 @RequestMapping("/api/v1/app-users")
 public class AppUserController {

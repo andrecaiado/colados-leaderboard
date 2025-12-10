@@ -7,6 +7,7 @@ import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.security.JwtUtil;
 import com.example.colados_leaderboard_api.service.AppUserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.core.ParameterizedTypeReference;
@@ -27,6 +28,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+@Tag(name = "Authentication", description = "Operations for user authentication and OAuth2 login")
 @SecurityRequirements
 @RestController
 @RequestMapping("/api/v1/auth")

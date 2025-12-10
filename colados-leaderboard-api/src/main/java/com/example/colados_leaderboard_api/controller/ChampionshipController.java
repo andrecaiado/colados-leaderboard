@@ -5,12 +5,14 @@ import com.example.colados_leaderboard_api.dto.CreateChampionshipDto;
 import com.example.colados_leaderboard_api.exceptions.CustomDataIntegrityViolationException;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.service.ChampionshipService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Championships", description = "Operations for managing championships")
 @PreAuthorize("hasAuthority('ADMIN')")
 @RestController
 @RequestMapping("/api/v1/championships")

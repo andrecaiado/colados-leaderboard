@@ -3,6 +3,7 @@ package com.example.colados_leaderboard_api.controller;
 import com.example.colados_leaderboard_api.dto.PlayerDto;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.service.PlayerService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Players", description = "Operations for retrieving players")
 @RestController
 @RequestMapping("/api/v1/players")
 public class PlayerController {

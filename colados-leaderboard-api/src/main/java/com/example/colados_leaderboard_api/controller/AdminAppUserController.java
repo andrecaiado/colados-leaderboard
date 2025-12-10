@@ -4,12 +4,14 @@ import com.example.colados_leaderboard_api.dto.AppUserDto;
 import com.example.colados_leaderboard_api.dto.RegisterExternalAppUserDto;
 import com.example.colados_leaderboard_api.exceptions.EntityNotFound;
 import com.example.colados_leaderboard_api.service.AppUserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Admin App Users", description = "Admin operations for managing application users")
 @PreAuthorize("hasAuthority('ADMIN')")
 @RestController
 @RequestMapping("/api/v1/admin/app-users")

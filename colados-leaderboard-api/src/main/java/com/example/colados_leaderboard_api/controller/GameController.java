@@ -6,6 +6,7 @@ import com.example.colados_leaderboard_api.exceptions.IllegalGameStateException;
 import com.example.colados_leaderboard_api.exceptions.IncompleteGameResultsException;
 import com.example.colados_leaderboard_api.exceptions.InvalidDataInGameResultsException;
 import com.example.colados_leaderboard_api.service.GameService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.net.URLConnection;
 
+@Tag(name = "Games", description = "Operations for managing games")
 @RestController
 @RequestMapping("/api/v1/games")
 public class GameController {
