@@ -1,11 +1,23 @@
 services:
-  # api:
-  #   build: ./api
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     - rabbitmq
-  #     - minio
+  colados-leaderboard-api:
+    build: ./colados-leaderboard-api
+    image: colados-leaderboard-api:1.0.0
+    container_name: colados-leaderboard-api
+    env_file:
+      - ./colados-leaderboard-api/.env
+    environment:
+      POSTGRES_HOST: postgres-colados
+      POSTGRES_PORT: 5432
+      MONGO_HOST: mongodb-colados
+      RABBITMQ_HOST: rabbitmq-colados
+      MINIO_ENDPOINT: minio-colados:9000
+    ports:
+      - "8080:8080"
+    networks:
+      - colados-network
+    depends_on:
+      - rabbitmq
+      - minio
 
   # ocr-worker:
   #   build: ./ocr-worker
