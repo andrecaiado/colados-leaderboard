@@ -8,7 +8,6 @@ services:
     environment:
       POSTGRES_HOST: postgres-colados
       POSTGRES_PORT: 5432
-      MONGO_HOST: mongodb-colados
       RABBITMQ_HOST: rabbitmq-colados
       MINIO_ENDPOINT: minio-colados:9000
     ports:
@@ -18,12 +17,24 @@ services:
     depends_on:
       - rabbitmq
       - minio
+      - postgres
 
-  # ocr-worker:
-  #   build: ./ocr-worker
-  #   depends_on:
-  #     - rabbitmq
-  #     - minio
+  colados-image-processor:
+    build: ./colados-image-processor
+    image: colados-image-processor:1.0.0
+    container_name: colados-image-processor
+    env_file:
+      - .env
+    environment:
+      MONGO_HOST: mongodb-colados
+      RABBITMQ_HOST: rabbitmq-colados
+      MINIO_ENDPOINT: minio-colados:9000
+    networks:
+      - colados-network
+    depends_on:
+      - rabbitmq
+      - minio
+      - mongodb
 
   rabbitmq:
     image: rabbitmq:3-management-alpine

@@ -1,10 +1,7 @@
 import os
-from sys import exception
 from inference_sdk import InferenceHTTPClient
 from dotenv import load_dotenv
 from filemngmt import delete_tmp_file, download_file_from_bucket
-from msgproducer import produce_message
-from repository import save_processed_file_details
 from schemas import Status
 
 load_dotenv()
