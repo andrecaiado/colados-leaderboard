@@ -14,34 +14,52 @@ The image analysis and data extraction is performed by a Roboflow model deployed
 ### Additional Features
 - Exposes an endpoint to get processed image results in JSON format.
 
-## How to Run
-> **Note:** 
-The following instructions are for running this project only. To run the complete Colados Leaderboard system, you can use the docker compose setup in the parent repository.
+## How to Run/Setup for Development
 
-1. Clone the repository.
+> **Note:** 
+The following instructions are for running this project only. To run the complete Colados Leaderboard project, please refer to the section [Running the Complete Project](../README.md#running-the-complete-project).
+
+1. Clone the repository:
+
+Please refer to the main project README for cloning instructions.
+
+2. Navigate to the project directory:
+
 ```shell
-git clone <repository-url>
 cd colados-image-processor
 ```
-2. Create a virtual environment for this project (optional but recommended).
+
+3. Create a virtual environment for this project (optional but recommended).
+
 ```shell
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 ```
-3. Install dependencies.
+
+4. Install dependencies.
+
 ```shell
 pip install -r requirements.txt
 ```
-4. Set up environment variables in the [.env](../.env) file.
-5. Start the services using Docker Compose.
+
+5. Set up environment variables:
+
+Create a `.env` file in the project root based on the provided `.env.example` file and update the variables as needed.
+
+6. Start the services using Docker Compose.
+
 ```shell
-docker compose up -d
+docker compose up -d rabbitmq minio mongodb mongo-express
 ```
+
 6. Start the FastAPI application.
+
 ```shell
 uvicorn main:app --reload
 ```
+
 7. Start the messages consumer.
+
 ```shell
 python msgconsumer.py
 ```
