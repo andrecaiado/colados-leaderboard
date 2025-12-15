@@ -42,9 +42,7 @@ source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 pip install -r requirements.txt
 ```
 
-5. Set up environment variables:
-
-Create a `.env` file in the project root based on the provided `.env.example` file and update the variables as needed.
+5. Create a `.env` file in the project root based on the provided `.env.example` file and update the variables as needed.
 
 6. Start the services using Docker Compose.
 

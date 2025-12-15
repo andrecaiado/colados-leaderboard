@@ -48,7 +48,7 @@ Before running the applications, ensure you have the following prerequisites:
 
 Steps to run and test the applications:
 
-1. Update the environment variables in the [.env](./.env) file as needed.
+1. Create a `.env` file in the project root based on the provided `.env.example` file and update the variables as needed.
 
 2. Start the services using Docker Compose:
 

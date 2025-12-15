@@ -46,8 +46,9 @@ cd colados-leaderboard-api
 mvn clean install
 ```
 
-4. Set up environment variables:
-Create a `.env` file in the project root based on the provided `.env.example` file and update the variables as needed.
+4. Create a `.env` file in the project root based on the provided `.env.example` file and update the variables as needed.
+
+> **Note:** As the `.env` file is located in the main project root, ensure you are referencing it correctly when running the application from this subdirectory.
 
 5. Start dependent services using Docker Compose:
 ```bash
@@ -74,7 +75,7 @@ This guide provides an overview of the Colados Leaderboard API main endopints fo
 
 ### Registering users
 
-This endpoint allows registering external users using the `root app user` credentials specified in the [.env](../.env) file.
+This endpoint allows registering external users using the `root app user` credentials specified in the `.env` file.
 
 Section: Admin App Users
 Endpoint: `POST /api/v1/admin/app-users`
@@ -100,6 +101,13 @@ This endpoint allows users to submit game scores and/or game score image. It is 
 Section: Games
 Endpoint: `POST /api/v1/games`
 
+### Accepting image processing results
+
+This endpoint allows accepting results that where either entered manually or processed from uploaded images.
+
+Section: Games
+Endpoint: `PATCH /api/v1/games/{gameId}/game-results-status`
+
 ### Retrieving game results
 
 This endpoint allows retrieving game results by game ID.
@@ -107,9 +115,16 @@ This endpoint allows retrieving game results by game ID.
 Section: Games
 Endpoint: `GET /api/v1/games/{gameId}/results`
 
+### Close game
+
+This endpoint allows closing a game by game ID. Once closed, no further score submissions are allowed for that game.
+
+Section: Games
+Endpoint: `PATCH /api/v1/games/{gameId}/status-for-edition`
+
 ### Retrieving monthly leaderboards
 
-This endpoint allows retrieving monthly leaderboards by championship ID and month/year.
+This endpoint allows retrieving monthly leaderboards by championship ID and month/year. Only games that are closed and have their results accepted will be considered for leaderboard generation.
 
 Section: Leaderboards
 Endpoint: `GET /api/v1/leaderboards/monthly?championshipId={championshipId}&month={month}&year={year}`
