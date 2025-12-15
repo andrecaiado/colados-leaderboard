@@ -4,7 +4,7 @@ services:
     image: colados-leaderboard-api:1.0.0
     container_name: colados-leaderboard-api
     env_file:
-      - ./colados-leaderboard-api/.env
+      - .env
     environment:
       POSTGRES_HOST: postgres-colados
       POSTGRES_PORT: 5432
@@ -29,6 +29,8 @@ services:
       MONGO_HOST: mongodb-colados
       RABBITMQ_HOST: rabbitmq-colados
       MINIO_ENDPOINT: minio-colados:9000
+    ports:
+      - "8000:8000"
     networks:
       - colados-network
     depends_on:
