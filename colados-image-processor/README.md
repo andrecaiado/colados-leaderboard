@@ -6,8 +6,8 @@ The image analysis and data extraction is performed by a Roboflow model deployed
 ## How It Works
 1. Consumes messages from a RabbitMQ queue that announces new images to process.
 2. Fetches images from a storage service (MinIO).
-3. Submits images to the Roboflow model for analysis.
-4. Extracts player results from the model's response.
+3. Submits images to the Roboflow workflow for analysis.
+4. Extracts player results from the workflow's response.
 5. Stores processed data in a PostgreSQL database.
 6. Publishes processed results to a RabbitMQ message queue.
 
@@ -86,3 +86,25 @@ You can verify the processing results in different ways:
 ```shell
 curl -X GET "http://localhost:8000/processedfile/your-file-name.jpg"
 ```
+
+## Image Processing with Roboflow
+
+This project uses a Roboflow workflow to analyze the scoreboard images. The workflow is deployed on the Roboflow platform and can be accessed via their API.
+
+### Roboflow Workflow
+
+This is the Roboflow workflow used for image processing:
+
+![Roboflow Workflow](../roboflow-workflow.png)
+
+### Roboflow models Used
+
+The workflow uses the following public models:
+
+- **Scoreboard Detection Model**: Detects the scoreboard area in the image.
+
+  URL: https://universe.roboflow.com/andrecaiado/mk8dx-scoreboard-detection-zxhvj
+
+- **Player Result Detection Model**: Detects player results (positions, names, times)
+
+   URL: https://universe.roboflow.com/andrecaiado/mk8dx-player-row-detection-qrm5n
